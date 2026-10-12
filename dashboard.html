@@ -3,135 +3,227 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>รายงานผลการลงทะเบียนแยกรายอำเภอ</title>
+    <title>Dashboard สรุปผล Edu Pass</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body { font-family: 'Sarabun', sans-serif; background-color: #f4f7f6; padding: 20px; }
-        .container { max-width: 900px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
         .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px; }
         .logout-btn { background-color: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
-        .filter-section { display: none; background: #e9ecef; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+        .filter-section { background: #e9ecef; padding: 15px; border-radius: 5px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap:10px;}
         select { padding: 8px; font-size: 16px; border-radius: 5px; border: 1px solid #ccc; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 15px; }
         th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
         th { background-color: #34495e; color: white; text-align: center; }
         tr:nth-child(even) { background-color: #f9f9f9; }
-        .summary-box { background: #007bff; color: white; padding: 15px; border-radius: 5px; text-align: center; font-size: 18px; font-weight: bold; margin-bottom: 20px;}
+        
+        .summary-box { background: #007bff; color: white; padding: 20px; border-radius: 8px; text-align: center; font-size: 20px; margin-bottom: 20px; line-height: 1.6;}
+        .highlight { font-size: 26px; font-weight: bold; color: #ffeb3b; }
+        
+        /* กล่องตั้งค่าเป้าหมาย */
+        #targetSetupBox { display: none; background: #fff3cd; border: 1px solid #ffeeba; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .target-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;}
+        .target-item input { width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; }
+        .btn-setup { background: #17a2b8; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold;}
+        .btn-save { background: #28a745; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 15px; width: 100%;}
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <h2 style="margin:0;">📊 รายงานผลการลงทะเบียนแอปพลิเคชัน EduPass</h2>
+        <h2 style="margin:0;">📊 Dashboard สรุปผลการลงทะเบียน EduPass</h2>
         <button class="logout-btn" onclick="logout()">ออกจากระบบ</button>
     </div>
 
-    <!-- ส่วนตัวกรอง (จะแสดงเฉพาะแอดมินจังหวัด) -->
     <div class="filter-section" id="adminFilter">
-        <label><b>สิทธิ์ผู้ดูแลระดับจังหวัด:</b> เลือกดูรายงานอำเภอ </label>
-        <select id="amphoeSelect" onchange="renderTable()">
-            <option value="ทั้งหมด">ภาพรวมทั้งหมด (ทุกอำเภอ)</option>
-            <option value="เมืองลำพูน">เมืองลำพูน</option>
-            <option value="แม่ทา">แม่ทา</option>
-            <option value="บ้านโฮ่ง">บ้านโฮ่ง</option>
-            <option value="ลี้">ลี้</option>
-            <option value="ทุ่งหัวช้าง">ทุ่งหัวช้าง</option>
-            <option value="ป่าซาง">ป่าซาง</option>
-            <option value="บ้านธิ">บ้านธิ</option>
-            <option value="เวียงหนองล่อง">เวียงหนองล่อง</option>
-        </select>
+        <div>
+            <b id="roleLabel">ระดับการเรียกดู: </b>
+            <select id="amphoeSelect" onchange="renderTable()" style="display:none;">
+                <option value="ทั้งหมด">ภาพรวมทั้งหมด (ทุกอำเภอ)</option>
+                <option value="เมืองลำพูน">เมืองลำพูน</option>
+                <option value="แม่ทา">แม่ทา</option>
+                <option value="บ้านโฮ่ง">บ้านโฮ่ง</option>
+                <option value="ลี้">ลี้</option>
+                <option value="ทุ่งหัวช้าง">ทุ่งหัวช้าง</option>
+                <option value="ป่าซาง">ป่าซาง</option>
+                <option value="บ้านธิ">บ้านธิ</option>
+                <option value="เวียงหนองล่อง">เวียงหนองล่อง</option>
+            </select>
+            <span id="amphoeLabel" style="font-size: 18px; font-weight: bold; color: #007bff; display:none;"></span>
+        </div>
+        <!-- ปุ่มเปิดตั้งค่า (เฉพาะอำเภอ) -->
+        <button id="btnOpenSetup" class="btn-setup" style="display:none;" onclick="toggleSetup()">⚙️ ระบุเป้าหมายตำบล</button>
     </div>
 
-    <div class="summary-box">
-        ยอดผู้รายงานผล (ตามที่เลือก): <span id="totalCount">0</span> คน
+    <!-- ส่วนตั้งค่าเป้าหมาย (ซ่อนไว้) -->
+    <div id="targetSetupBox">
+        <h3 style="margin-top:0; color:#856404;">⚙️ กำหนดยอดเป้าหมายของแต่ละตำบล (คน)</h3>
+        <div id="targetInputs" class="target-grid"></div>
+        <button class="btn-save" onclick="saveTargets()">💾 บันทึกเป้าหมาย</button>
+    </div>
+
+    <div class="summary-box" id="summaryBox">
+        <!-- ข้อมูลสรุปจะถูกแทรกที่นี่ -->
     </div>
 
     <div style="overflow-x:auto;">
+        <h3>📌 ความคืบหน้าการลงทะเบียน</h3>
         <table>
             <thead>
                 <tr>
-                    <th width="15%">วัน/เวลา</th>
-                    <th width="20%">อำเภอ</th>
-                    <th width="45%">ชื่อ-นามสกุล</th>
-                    <th width="20%">หลักฐาน</th>
+                    <th id="progressHeaderCol" width="25%">พื้นที่</th>
+                    <th width="20%">เป้าหมาย (คน)</th>
+                    <th width="20%">รายงานแล้ว (คน)</th>
+                    <th width="15%">ร้อยละ (%)</th>
+                    <th width="20%">สถานะ</th>
                 </tr>
             </thead>
-            <tbody id="dataTable">
-                <tr><td colspan="4" style="text-align:center;">กำลังโหลดข้อมูล...</td></tr>
+            <tbody id="progressTable">
+                <tr><td colspan="5" style="text-align:center;">กำลังโหลดข้อมูล...</td></tr>
             </tbody>
         </table>
     </div>
 </div>
 
 <script>
-    // *** เปลี่ยนเป็น URL อันใหม่ ***
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbzA-AIEDMPN0YxSlj3tiV9Q6B_11XYBgVIAA215uGu7wKiO3ZBvHvVvP2N8u4bOdEazdg/exec'; 
+    // *** นำ Web App URL อันใหม่ของคุณมาใส่ตรงนี้ ***
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbyIDO7dGUl44yHvvScLD6-VA0cUBlXLJ-St_8H1DastVX0wNlNxR820aotrvt0Vi8moEA/exec'; 
 
     let allReports = [];
+    let allTargets = [];
     let userRole = localStorage.getItem("userRole");
     let userAmphoe = localStorage.getItem("userAmphoe");
 
-    // เช็คสิทธิ์ก่อน ถ้ายังไม่ได้ล็อคอิน ให้เตะกลับไปหน้า Login
-    if (!userRole) {
-        window.location.href = "login.html";
-    }
+    const tambonData = {
+        "เมืองลำพูน": ["ในเมือง", "เหมืองง่า", "อุโมงค์", "หนองช้างคืน", "ประตูป่า", "ริมปิง", "ต้นธง", "บ้านแป้น", "เหมืองจี้", "ป่าสัก", "เวียงยอง", "บ้านกลาง", "มะเขือแจ้", "ศรีบัวบาน", "หนองหนาม"],
+        "แม่ทา": ["ทาปลาดุก", "ทาสบเส้า", "ทากาศ", "ทาขุมเงิน", "ทาทุ่งหลวง", "ทาแม่ลอบ"],
+        "บ้านโฮ่ง": ["บ้านโฮ่ง", "ป่าพลู", "เหล่ายาว", "ศรีเตี้ย", "หนองปลาสะวาย"],
+        "ลี้": ["ลี้", "แม่ตืน", "นาทราย", "ดงดำ", "ก้อ", "แม่ลาน", "ป่าไผ่", "ศรีวิชัย"],
+        "ทุ่งหัวช้าง": ["ทุ่งหัวช้าง", "บ้านปวง", "ตะเคียนปม"],
+        "ป่าซาง": ["ปากบ่อง", "ป่าซาง", "แม่แรง", "ม่วงน้อย", "บ้านเรือน", "มะกอก", "ท่าตุ้ม", "น้ำดิบ", "นครเจดีย์"],
+        "บ้านธิ": ["บ้านธิ", "ห้วยยาบ"],
+        "เวียงหนองล่อง": ["หนองล่อง", "หนองยวง", "วังผาง"]
+    };
+
+    if (!userRole) window.location.href = "login.html";
 
     window.onload = function() {
-        // ถ้าเป็นแอดมินจังหวัด ให้แสดงช่องเลือกอำเภอ
         if(userRole === "จังหวัด") {
-            document.getElementById('adminFilter').style.display = "block";
+            document.getElementById('amphoeSelect').style.display = "inline-block";
+        } else {
+            document.getElementById('amphoeLabel').style.display = "inline-block";
+            document.getElementById('amphoeLabel').innerText = "สกร.ระดับอำเภอ" + userAmphoe;
+            document.getElementById('btnOpenSetup').style.display = "inline-block";
         }
 
-        // ดึงข้อมูลทั้งหมดจากฐานข้อมูล
-        fetch(scriptURL)
+        fetch(scriptURL + "?action=getReport")
             .then(response => response.json())
             .then(data => {
-                allReports = data;
+                allReports = data.reports;
+                allTargets = data.targets;
                 renderTable();
             })
             .catch(error => {
-                document.getElementById('dataTable').innerHTML = '<tr><td colspan="4" style="text-align:center; color:red;">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>';
+                document.getElementById('progressTable').innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>';
             });
     };
 
     function renderTable() {
-        const table = document.getElementById('dataTable');
-        table.innerHTML = '';
-        let filteredReports = [];
+        let displayMode = (userRole === "จังหวัด" && document.getElementById('amphoeSelect').value === "ทั้งหมด") ? "AMPHOE" : "TAMBON";
+        let filterAmphoe = (userRole === "จังหวัด") ? document.getElementById('amphoeSelect').value : userAmphoe;
 
-        if (userRole === "จังหวัด") {
-            // สิทธิ์จังหวัด ดึงเงื่อนไขจาก Dropdown
-            let selectedAmphoe = document.getElementById('amphoeSelect').value;
-            if (selectedAmphoe === "ทั้งหมด") {
-                filteredReports = allReports;
-            } else {
-                filteredReports = allReports.filter(r => r.amphoe === selectedAmphoe);
+        let rep = (displayMode === "AMPHOE") ? allReports : allReports.filter(r => r.amphoe === filterAmphoe);
+        let tgt = (displayMode === "AMPHOE") ? allTargets : allTargets.filter(t => t.amphoe === filterAmphoe);
+
+        let totalTarget = tgt.reduce((sum, t) => sum + (parseInt(t.target) || 0), 0);
+        let totalActual = rep.length;
+        let pct = totalTarget > 0 ? ((totalActual / totalTarget) * 100).toFixed(2) : 0;
+        
+        let areaName = displayMode === "AMPHOE" ? "จังหวัดลำพูน" : "อำเภอ" + filterAmphoe;
+        
+        document.getElementById('summaryBox').innerHTML = `
+            ภาพรวม ${areaName} ยอดรวมเป้าหมายทั้งสิ้น <span class="highlight">${totalTarget}</span> คน<br>
+            รายงานแล้ว <span class="highlight">${totalActual}</span> คน คิดเป็นร้อยละ <span class="highlight">${pct}%</span>
+        `;
+
+        document.getElementById('progressHeaderCol').innerText = (displayMode === "AMPHOE") ? "อำเภอ" : "ตำบล";
+        let progressHTML = '';
+
+        if (displayMode === "AMPHOE") {
+            let ampStats = {};
+            Object.keys(tambonData).forEach(a => ampStats[a] = {target: 0, actual: 0});
+            tgt.forEach(t => { if(ampStats[t.amphoe]) ampStats[t.amphoe].target += parseInt(t.target) || 0; });
+            rep.forEach(r => { if(ampStats[r.amphoe]) ampStats[r.amphoe].actual++; });
+            
+            for(let a in ampStats) {
+                let d = ampStats[a];
+                let p = d.target > 0 ? ((d.actual/d.target)*100).toFixed(2) : 0;
+                let status = d.actual >= d.target && d.target > 0 ? "✅ ครบถ้วน" : "⏳ กำลังดำเนินการ";
+                progressHTML += `<tr><td>อำเภอ${a}</td><td style="text-align:center;">${d.target}</td><td style="text-align:center; font-weight:bold;">${d.actual}</td><td style="text-align:center;">${p}%</td><td>${status}</td></tr>`;
             }
         } else {
-            // สิทธิ์อำเภอ ล็อกให้ดูได้แค่อำเภอตัวเองเท่านั้น
-            filteredReports = allReports.filter(r => r.amphoe === userAmphoe);
+            let tbs = tambonData[filterAmphoe] || [];
+            let tbStats = {};
+            tbs.forEach(t => tbStats[t] = {target: 0, actual: 0});
+            tgt.forEach(t => { if(tbStats[t.tambon]) tbStats[t.tambon].target = parseInt(t.target) || 0; });
+            rep.forEach(r => { if(tbStats[r.tambon]) tbStats[r.tambon].actual++; });
+            
+            for(let t in tbStats) {
+                let d = tbStats[t];
+                let p = d.target > 0 ? ((d.actual/d.target)*100).toFixed(2) : 0;
+                let status = d.actual >= d.target && d.target > 0 ? "✅ ครบถ้วน" : "⏳ กำลังดำเนินการ";
+                progressHTML += `<tr><td>ตำบล${t}</td><td style="text-align:center;">${d.target}</td><td style="text-align:center; font-weight:bold;">${d.actual}</td><td style="text-align:center;">${p}%</td><td>${status}</td></tr>`;
+            }
         }
+        document.getElementById('progressTable').innerHTML = progressHTML;
+    }
 
-        // อัปเดตตัวเลขสรุป
-        document.getElementById('totalCount').innerText = filteredReports.length;
-
-        // วาดตาราง
-        if (filteredReports.length === 0) {
-            table.innerHTML = '<tr><td colspan="4" style="text-align:center;">ยังไม่มีข้อมูลการรายงาน</td></tr>';
+    function toggleSetup() {
+        const box = document.getElementById('targetSetupBox');
+        if (box.style.display === "block") {
+            box.style.display = "none";
         } else {
-            filteredReports.forEach(row => {
-                table.innerHTML += `<tr>
-                    <td>${row.timestamp}</td>
-                    <td>${row.amphoe}</td>
-                    <td>${row.name}</td>
-                    <td style="text-align:center;"><a href="${row.imageUrl}" target="_blank" style="color:#007bff;">ดูรูปภาพ</a></td>
-                </tr>`;
+            // สร้างช่องกรอกเป้าหมายตามตำบล
+            const inputsDiv = document.getElementById('targetInputs');
+            inputsDiv.innerHTML = '';
+            let tbs = tambonData[userAmphoe];
+            tbs.forEach(tb => {
+                // หาค่าเดิมถ้าเคยตั้งไว้แล้ว
+                let oldTgt = allTargets.find(t => t.amphoe === userAmphoe && t.tambon === tb);
+                let val = oldTgt ? oldTgt.target : 0;
+                inputsDiv.innerHTML += `
+                    <div class="target-item">
+                        <label>ต.${tb}</label>
+                        <input type="number" id="tgt_${tb}" value="${val}" min="0">
+                    </div>`;
             });
+            box.style.display = "block";
         }
     }
 
+    function saveTargets() {
+        let payloadTargets = [];
+        tambonData[userAmphoe].forEach(tb => {
+            let val = document.getElementById('tgt_' + tb).value;
+            payloadTargets.push({ amphoe: userAmphoe, tambon: tb, target: parseInt(val) || 0 });
+        });
+
+        Swal.fire({ title: 'กำลังบันทึกเป้าหมาย...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+        fetch(scriptURL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'saveTargets', targets: payloadTargets })
+        }).then(res => res.json())
+        .then(data => {
+            Swal.fire('สำเร็จ', 'บันทึกเป้าหมายเรียบร้อยแล้ว', 'success').then(() => window.location.reload());
+        }).catch(err => {
+            Swal.fire('ผิดพลาด', 'ไม่สามารถบันทึกได้', 'error');
+        });
+    }
+
     function logout() {
-        localStorage.clear(); // ลบสิทธิ์ทิ้ง
+        localStorage.clear();
         window.location.href = "login.html";
     }
 </script>
