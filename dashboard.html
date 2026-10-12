@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>รายงานผล EduPass แยกรายอำเภอ</title>
+    <style>
+        body { font-family: 'Sarabun', sans-serif; background-color: #f4f7f6; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px; }
+        .logout-btn { background-color: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
+        .filter-section { display: none; background: #e9ecef; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+        select { padding: 8px; font-size: 16px; border-radius: 5px; border: 1px solid #ccc; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #34495e; color: white; text-align: center; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .summary-box { background: #007bff; color: white; padding: 15px; border-radius: 5px; text-align: center; font-size: 18px; font-weight: bold; margin-bottom: 20px;}
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h2 style="margin:0;">📊 รายงานผลการลงทะเบียน EduPass</h2>
+        <button class="logout-btn" onclick="logout()">ออกจากระบบ</button>
+    </div>
+
+    <!-- ส่วนตัวกรอง (จะแสดงเฉพาะแอดมินจังหวัด) -->
+    <div class="filter-section" id="adminFilter">
+        <label><b>สิทธิ์ผู้ดูแลระดับจังหวัด:</b> เลือกดูรายงานอำเภอ </label>
+        <select id="amphoeSelect" onchange="renderTable()">
+            <option value="ทั้งหมด">ภาพรวมทั้งหมด (ทุกอำเภอ)</option>
+            <option value="เมืองลำพูน">เมืองลำพูน</option>
+            <option value="แม่ทา">แม่ทา</option>
+            <option value="บ้านโฮ่ง">บ้านโฮ่ง</option>
+            <option value="ลี้">ลี้</option>
+            <option value="ทุ่งหัวช้าง">ทุ่งหัวช้าง</option>
+            <option value="ป่าซาง">ป่าซาง</option>
+            <option value="บ้านธิ">บ้านธิ</option>
+            <option value="เวียงหนองล่อง">เวียงหนองล่อง</option>
+        </select>
+    </div>
+
+    <div class="summary-box">
+        ยอดผู้รายงานผล (ตามที่เลือก): <span id="totalCount">0</span> คน
+    </div>
+
+    <div style="overflow-x:auto;">
+        <table>
+            <thead>
+                <tr>
+                    <th width="15%">วัน/เวลา</th>
+                    <th width="20%">อำเภอ</th>
+                    <th width="45%">ชื่อ-นามสกุล</th>
+                    <th width="20%">หลักฐาน</th>
+                </tr>
+            </thead>
+            <tbody id="dataTable">
+                <tr><td colspan="4" style="text-align:center;">กำลังโหลดข้อมูล...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // *** เปลี่ยนเป็น URL อันใหม่ ***
+    const scriptURL = 'https://script.google.com/macros/s/AKfycby463fiOLQRwsOzfxXTJ31GHLUeLSV5BGeKXpsSAwSDSL59msesH17Mae-N14H-yhluaQ/exec'; 
+
+    let allReports = [];
+    let userRole = localStorage.getItem("userRole");
+    let userAmphoe = localStorage.getItem("userAmphoe");
+
+    // เช็คสิทธิ์ก่อน ถ้ายังไม่ได้ล็อคอิน ให้เตะกลับไปหน้า Login
+    if (!userRole) {
+        window.location.href = "login.html";
+    }
+
+    window.onload = function() {
+        // ถ้าเป็นแอดมินจังหวัด ให้แสดงช่องเลือกอำเภอ
+        if(userRole === "จังหวัด") {
+            document.getElementById('adminFilter').style.display = "block";
+        }
+
+        // ดึงข้อมูลทั้งหมดจากฐานข้อมูล
+        fetch(scriptURL)
+            .then(response => response.json())
+            .then(data => {
+                allReports = data;
+                renderTable();
+            })
+            .catch(error => {
+                document.getElementById('dataTable').innerHTML = '<tr><td colspan="4" style="text-align:center; color:red;">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>';
+            });
+    };
+
+    function renderTable() {
+        const table = document.getElementById('dataTable');
+        table.innerHTML = '';
+        let filteredReports = [];
+
+        if (userRole === "จังหวัด") {
+            // สิทธิ์จังหวัด ดึงเงื่อนไขจาก Dropdown
+            let selectedAmphoe = document.getElementById('amphoeSelect').value;
+            if (selectedAmphoe === "ทั้งหมด") {
+                filteredReports = allReports;
+            } else {
+                filteredReports = allReports.filter(r => r.amphoe === selectedAmphoe);
+            }
+        } else {
+            // สิทธิ์อำเภอ ล็อกให้ดูได้แค่อำเภอตัวเองเท่านั้น
+            filteredReports = allReports.filter(r => r.amphoe === userAmphoe);
+        }
+
+        // อัปเดตตัวเลขสรุป
+        document.getElementById('totalCount').innerText = filteredReports.length;
+
+        // วาดตาราง
+        if (filteredReports.length === 0) {
+            table.innerHTML = '<tr><td colspan="4" style="text-align:center;">ยังไม่มีข้อมูลการรายงาน</td></tr>';
+        } else {
+            filteredReports.forEach(row => {
+                table.innerHTML += `<tr>
+                    <td>${row.timestamp}</td>
+                    <td>${row.amphoe}</td>
+                    <td>${row.name}</td>
+                    <td style="text-align:center;"><a href="${row.imageUrl}" target="_blank" style="color:#007bff;">ดูรูปภาพ</a></td>
+                </tr>`;
+            });
+        }
+    }
+
+    function logout() {
+        localStorage.clear(); // ลบสิทธิ์ทิ้ง
+        window.location.href = "login.html";
+    }
+</script>
+</body>
+</html>

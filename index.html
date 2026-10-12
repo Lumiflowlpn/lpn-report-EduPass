@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบติดตามการลงทะเบียน - สกร.ลำพูน</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body { font-family: 'Sarabun', sans-serif; background-color: #f0f4f8; padding: 20px; }
+        .container { max-width: 500px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
+        h2 { text-align: center; color: #2c3e50; line-height: 1.4; margin-bottom: 25px; font-size: 20px; }
+        .highlight { color: #007bff; font-size: 24px; font-weight: bold; }
+        label { font-weight: bold; display: block; margin-top: 15px; color: #34495e; }
+        input[type="text"], select, input[type="file"] { width: 100%; padding: 12px; margin-top: 8px; border: 1px solid #ced4da; border-radius: 6px; box-sizing: border-box; }
+        button { width: 100%; padding: 14px; background-color: #007bff; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; margin-top: 25px; cursor: pointer; transition: 0.3s; }
+        button:hover { background-color: #0056b3; }
+        .note { font-size: 13px; color: #e74c3c; margin-top: 5px; display: block; }
+        
+        /* ส่วนที่เพิ่มใหม่ด้านล่างปุ่ม */
+        .bottom-links { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+        .btn-link { display: block; width: 100%; padding: 12px; text-align: center; text-decoration: none; border-radius: 6px; font-size: 15px; font-weight: bold; box-sizing: border-box; border: 2px solid; transition: 0.3s; }
+        .btn-manual { border-color: #28a745; color: #28a745; }
+        .btn-manual:hover { background-color: #28a745; color: white; }
+        .btn-login { border-color: #6c757d; color: #6c757d; }
+        .btn-login:hover { background-color: #6c757d; color: white; }
+        
+        .sample-box { margin-top: 25px; padding: 15px; background-color: #e9ecef; border-radius: 6px; border: 1px dashed #6c757d; text-align: center; }
+        .sample-title { font-size: 14px; font-weight: bold; color: #495057; display: block; margin-bottom: 10px; }
+        .sample-box img { max-width: 250px; width: 100%; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>ระบบติดตามการลงทะเบียนการเข้าใช้งาน<br>แอปพลิเคชัน <span class="highlight">EduPass</span><br>ของผู้เรียน สกร.ลำพูน</h2>
+    
+    <form id="edupassForm">
+        <label>ชื่อ-นามสกุล ของผู้เรียน:</label>
+        <input type="text" id="name" placeholder="ระบุ ชื่อ-นามสกุล" required>
+
+        <label>ศูนย์ส่งเสริมการเรียนรู้ระดับอำเภอ (สกร.ระดับอำเภอ):</label>
+        <select id="amphoe" required>
+            <option value="">-- กรุณาเลือกอำเภอ --</option>
+            <option value="เมืองลำพูน">เมืองลำพูน</option>
+            <option value="แม่ทา">แม่ทา</option>
+            <option value="บ้านโฮ่ง">บ้านโฮ่ง</option>
+            <option value="ลี้">ลี้</option>
+            <option value="ทุ่งหัวช้าง">ทุ่งหัวช้าง</option>
+            <option value="ป่าซาง">ป่าซาง</option>
+            <option value="บ้านธิ">บ้านธิ</option>
+            <option value="เวียงหนองล่อง">เวียงหนองล่อง</option>
+        </select>
+
+        <label>แนบภาพถ่ายหน้าจอการลงทะเบียนสำเร็จ:</label>
+        <input type="file" id="uploadFile" accept="image/*" required>
+        <span class="note">* กรุณาแนบไฟล์ภาพ (JPG, PNG) เท่านั้น</span>
+
+        <button type="submit" id="submitBtn">บันทึกข้อมูล</button>
+    </form>
+
+    <!-- 1. ปุ่มคู่มือ และปุ่มเข้าระบบดูรายงาน -->
+    <div class="bottom-links">
+        <a href="https://drive.google.com/file/d/1wCV-CmJEkfxaSBf0F0YYstgzHxzyMSJ_/view?usp=sharing" target="_blank" class="btn-link btn-manual">📖 คู่มือการลงทะเบียนแอปพลิเคชัน EduPass</a>
+        <a href="login.html" class="btn-link btn-login">🔒 เข้าสู่ระบบเรียกดูรายงานผล (สำหรับแอดมิน)</a>
+    </div>
+
+    <!-- 2. ตัวอย่างภาพหลักฐาน -->
+    <div class="sample-box">
+        <span class="sample-title">📌 ตัวอย่างไฟล์ภาพหลักฐานที่ต้องแนบ</span>
+        <img src="https://i.postimg.cc/htdjx9BF/274910.png" alt="ตัวอย่างหลักฐาน">
+    </div>
+</div>
+
+<script>
+    // *** นำ Web App URL ของคุณมาใส่ตรงนี้ ***
+    const scriptURL = 'https://script.google.com/macros/s/AKfycby463fiOLQRwsOzfxXTJ31GHLUeLSV5BGeKXpsSAwSDSL59msesH17Mae-N14H-yhluaQ/exec'; 
+
+    document.getElementById('edupassForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const fileInput = document.getElementById('uploadFile');
+        const file = fileInput.files[0];
+
+        if (file) {
+            Swal.fire({
+                title: 'กำลังบันทึกข้อมูล...',
+                html: 'ระบบกำลังอัปโหลดรูปภาพและบันทึกลงฐานข้อมูล<br><b>กรุณารอสักครู่ ห้ามปิดหน้าต่างนี้</b>',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const payload = {
+                    action: "saveReport", // บอก Apps Script ว่าเป็นการเซฟข้อมูล
+                    name: document.getElementById('name').value,
+                    amphoe: document.getElementById('amphoe').value,
+                    fileData: e.target.result.split(',')[1],
+                    mimeType: file.type
+                };
+
+                fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
+                .then(() => {
+                    Swal.fire({ icon: 'success', title: 'บันทึกข้อมูลสำเร็จ!', text: 'ดำเนินการบันทึกลงฐานข้อมูลเรียบร้อยแล้ว', confirmButtonColor: '#28a745' });
+                    document.getElementById('edupassForm').reset();
+                })
+                .catch(error => {
+                    Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'กรุณาตรวจสอบอินเทอร์เน็ตแล้วลองใหม่อีกครั้ง' });
+                });
+            };
+            reader.readAsDataURL(file); 
+        }
+    });
+</script>
+</body>
+</html>
