@@ -22,10 +22,12 @@
         
         /* กล่องตั้งค่าเป้าหมาย */
         #targetSetupBox { display: none; background: #fff3cd; border: 1px solid #ffeeba; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .setup-header { margin-bottom: 15px; font-size: 16px; color: #856404; }
         .target-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;}
-        .target-item input { width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; }
+        .target-item input { width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; }
         .btn-setup { background: #17a2b8; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold;}
-        .btn-save { background: #28a745; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 15px; width: 100%;}
+        .btn-save { background: #28a745; color: white; border: none; padding: 12px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 20px; width: 100%; font-size: 16px;}
+        .btn-save:disabled { background: #a5d8b0; cursor: not-allowed; }
     </style>
 </head>
 <body>
@@ -50,23 +52,24 @@
                 <option value="บ้านธิ">บ้านธิ</option>
                 <option value="เวียงหนองล่อง">เวียงหนองล่อง</option>
             </select>
-            <span id="amphoeLabel" style="font-size: 18px; font-weight: bold; color: #007bff; display:none;"></span>
+            <span id="areaLabel" style="font-size: 18px; font-weight: bold; color: #007bff; display:none;"></span>
         </div>
-        <!-- ปุ่มเปิดตั้งค่า (เฉพาะอำเภอ) -->
-        <button id="btnOpenSetup" class="btn-setup" style="display:none;" onclick="toggleSetup()">⚙️ ระบุเป้าหมายตำบล</button>
+        <!-- ปุ่มเปิดตั้งค่า (เฉพาะระดับอำเภอ) -->
+        <button id="btnOpenSetup" class="btn-setup" style="display:none;" onclick="toggleSetup()">⚙️ จัดสรรเป้าหมายรายตำบล</button>
     </div>
 
-    <!-- ส่วนตั้งค่าเป้าหมาย (ซ่อนไว้) -->
+    <!-- ส่วนตั้งค่าเป้าหมายสำหรับแอดมินอำเภอ -->
     <div id="targetSetupBox">
-        <h3 style="margin-top:0; color:#856404;">⚙️ กำหนดยอดเป้าหมายของแต่ละตำบล (คน)</h3>
+        <h3 style="margin-top:0; color:#856404;">⚙️ จัดสรรยอดเป้าหมายรายตำบล</h3>
+        <div class="setup-header" id="setupSummaryInfo"></div>
         <div id="targetInputs" class="target-grid"></div>
-        <button class="btn-save" onclick="saveTargets()">💾 บันทึกเป้าหมาย</button>
+        <button id="saveTargetBtn" class="btn-save" onclick="saveTargets()" disabled>💾 บันทึกเป้าหมาย</button>
     </div>
 
-    <div class="summary-box" id="summaryBox">
-        <!-- ข้อมูลสรุปจะถูกแทรกที่นี่ -->
-    </div>
+    <!-- สรุปตัวเลขใหญ่ -->
+    <div class="summary-box" id="summaryBox"></div>
 
+    <!-- ตารางความคืบหน้าภาพรวม -->
     <div style="overflow-x:auto;">
         <h3>📌 ความคืบหน้าการลงทะเบียน</h3>
         <table>
@@ -87,13 +90,12 @@
 </div>
 
 <script>
-    // *** นำ Web App URL อันใหม่ของคุณมาใส่ตรงนี้ ***
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbyIDO7dGUl44yHvvScLD6-VA0cUBlXLJ-St_8H1DastVX0wNlNxR820aotrvt0Vi8moEA/exec'; 
+    // *** นำ Web App URL ของคุณมาใส่ตรงนี้ ***
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbxK1jjs7suJTDUjtkHiH5tihba6C8Ozh695fTygvUCEN9FFp-Gh_BbfB6KpXS2n28yQuQ/exec'; 
 
-    let allReports = [];
-    let allTargets = [];
-    let userRole = localStorage.getItem("userRole");
-    let userAmphoe = localStorage.getItem("userAmphoe");
+    let allReports = [], allTargets = [], amphoeTargets = {};
+    let userRole = localStorage.getItem("userRole"); 
+    let userArea = localStorage.getItem("userAmphoe"); // จังหวัด=ทั้งหมด, อำเภอ=ชื่ออำเภอ, ตำบล=ชื่อตำบล
 
     const tambonData = {
         "เมืองลำพูน": ["ในเมือง", "เหมืองง่า", "อุโมงค์", "หนองช้างคืน", "ประตูป่า", "ริมปิง", "ต้นธง", "บ้านแป้น", "เหมืองจี้", "ป่าสัก", "เวียงยอง", "บ้านกลาง", "มะเขือแจ้", "ศรีบัวบาน", "หนองหนาม"],
@@ -106,126 +108,171 @@
         "เวียงหนองล่อง": ["หนองล่อง", "หนองยวง", "วังผาง"]
     };
 
+    // ฟังก์ชันช่วยหาว่าตำบลนี้อยู่อำเภออะไร
+    function getAmphoeByTambon(tb) {
+        for (let amp in tambonData) { if (tambonData[amp].includes(tb)) return amp; }
+        return "";
+    }
+
     if (!userRole) window.location.href = "login.html";
 
     window.onload = function() {
         if(userRole === "จังหวัด") {
             document.getElementById('amphoeSelect').style.display = "inline-block";
         } else {
-            document.getElementById('amphoeLabel').style.display = "inline-block";
-            document.getElementById('amphoeLabel').innerText = "สกร.ระดับอำเภอ" + userAmphoe;
-            document.getElementById('btnOpenSetup').style.display = "inline-block";
+            document.getElementById('areaLabel').style.display = "inline-block";
+            let prefix = userRole === "อำเภอ" ? "สกร.อำเภอ " : "สกร.ตำบล ";
+            document.getElementById('areaLabel').innerText = prefix + userArea;
+            
+            if(userRole === "อำเภอ") {
+                document.getElementById('btnOpenSetup').style.display = "inline-block";
+            }
         }
 
         fetch(scriptURL + "?action=getReport")
-            .then(response => response.json())
+            .then(res => res.json())
             .then(data => {
                 allReports = data.reports;
                 allTargets = data.targets;
+                amphoeTargets = data.amphoeTargets || {};
                 renderTable();
-            })
-            .catch(error => {
-                document.getElementById('progressTable').innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>';
-            });
+            }).catch(error => { console.error(error); });
     };
 
     function renderTable() {
-        let displayMode = (userRole === "จังหวัด" && document.getElementById('amphoeSelect').value === "ทั้งหมด") ? "AMPHOE" : "TAMBON";
-        let filterAmphoe = (userRole === "จังหวัด") ? document.getElementById('amphoeSelect').value : userAmphoe;
+        let displayMode = "AMPHOE"; // AMPHOE, TAMBON, SINGLE_TAMBON
+        let filterAmphoe = "";
 
-        let rep = (displayMode === "AMPHOE") ? allReports : allReports.filter(r => r.amphoe === filterAmphoe);
-        let tgt = (displayMode === "AMPHOE") ? allTargets : allTargets.filter(t => t.amphoe === filterAmphoe);
+        if (userRole === "จังหวัด") {
+            let sel = document.getElementById('amphoeSelect').value;
+            displayMode = (sel === "ทั้งหมด") ? "AMPHOE" : "TAMBON";
+            filterAmphoe = sel;
+        } else if (userRole === "อำเภอ") {
+            displayMode = "TAMBON";
+            filterAmphoe = userArea;
+        } else if (userRole === "ตำบล") {
+            displayMode = "SINGLE_TAMBON";
+            filterAmphoe = getAmphoeByTambon(userArea);
+        }
 
-        let totalTarget = tgt.reduce((sum, t) => sum + (parseInt(t.target) || 0), 0);
-        let totalActual = rep.length;
-        let pct = totalTarget > 0 ? ((totalActual / totalTarget) * 100).toFixed(2) : 0;
-        
-        let areaName = displayMode === "AMPHOE" ? "จังหวัดลำพูน" : "อำเภอ" + filterAmphoe;
-        
-        document.getElementById('summaryBox').innerHTML = `
-            ภาพรวม ${areaName} ยอดรวมเป้าหมายทั้งสิ้น <span class="highlight">${totalTarget}</span> คน<br>
-            รายงานแล้ว <span class="highlight">${totalActual}</span> คน คิดเป็นร้อยละ <span class="highlight">${pct}%</span>
-        `;
-
-        document.getElementById('progressHeaderCol').innerText = (displayMode === "AMPHOE") ? "อำเภอ" : "ตำบล";
+        let totalTarget = 0, totalActual = 0;
         let progressHTML = '';
+        document.getElementById('progressHeaderCol').innerText = (displayMode === "AMPHOE") ? "อำเภอ" : "ตำบล";
 
         if (displayMode === "AMPHOE") {
+            // โหมดภาพรวมจังหวัด (แสดงตารางเป็นอำเภอ)
             let ampStats = {};
-            Object.keys(tambonData).forEach(a => ampStats[a] = {target: 0, actual: 0});
-            tgt.forEach(t => { if(ampStats[t.amphoe]) ampStats[t.amphoe].target += parseInt(t.target) || 0; });
-            rep.forEach(r => { if(ampStats[r.amphoe]) ampStats[r.amphoe].actual++; });
+            Object.keys(tambonData).forEach(a => ampStats[a] = {target: parseInt(amphoeTargets[a]) || 0, actual: 0});
+            allReports.forEach(r => { if(ampStats[r.amphoe]) ampStats[r.amphoe].actual++; });
             
             for(let a in ampStats) {
                 let d = ampStats[a];
+                totalTarget += d.target;
+                totalActual += d.actual;
                 let p = d.target > 0 ? ((d.actual/d.target)*100).toFixed(2) : 0;
                 let status = d.actual >= d.target && d.target > 0 ? "✅ ครบถ้วน" : "⏳ กำลังดำเนินการ";
                 progressHTML += `<tr><td>อำเภอ${a}</td><td style="text-align:center;">${d.target}</td><td style="text-align:center; font-weight:bold;">${d.actual}</td><td style="text-align:center;">${p}%</td><td>${status}</td></tr>`;
             }
-        } else {
-            let tbs = tambonData[filterAmphoe] || [];
+            document.getElementById('summaryBox').innerHTML = `ภาพรวมจังหวัดลำพูน ยอดรวมเป้าหมายทั้งสิ้น <span class="highlight">${totalTarget}</span> คน<br>รายงานแล้ว <span class="highlight">${totalActual}</span> คน คิดเป็นร้อยละ <span class="highlight">${totalTarget>0 ? ((totalActual/totalTarget)*100).toFixed(2) : 0}%</span>`;
+        
+        } else if (displayMode === "TAMBON") {
+            // โหมดภาพรวมรายอำเภอ (แสดงตารางเป็นตำบล)
             let tbStats = {};
-            tbs.forEach(t => tbStats[t] = {target: 0, actual: 0});
-            tgt.forEach(t => { if(tbStats[t.tambon]) tbStats[t.tambon].target = parseInt(t.target) || 0; });
-            rep.forEach(r => { if(tbStats[r.tambon]) tbStats[r.tambon].actual++; });
+            tambonData[filterAmphoe].forEach(t => tbStats[t] = {target: 0, actual: 0});
+            allTargets.forEach(t => { if(t.amphoe === filterAmphoe && tbStats[t.tambon]) tbStats[t.tambon].target = parseInt(t.target) || 0; });
+            allReports.forEach(r => { if(r.amphoe === filterAmphoe && tbStats[r.tambon]) tbStats[r.tambon].actual++; });
+
+            totalTarget = parseInt(amphoeTargets[filterAmphoe]) || 0; // ยึดเป้าหมายอำเภอที่จังหวัดตั้งให้เป็นหลัก
             
             for(let t in tbStats) {
                 let d = tbStats[t];
+                totalActual += d.actual;
                 let p = d.target > 0 ? ((d.actual/d.target)*100).toFixed(2) : 0;
                 let status = d.actual >= d.target && d.target > 0 ? "✅ ครบถ้วน" : "⏳ กำลังดำเนินการ";
                 progressHTML += `<tr><td>ตำบล${t}</td><td style="text-align:center;">${d.target}</td><td style="text-align:center; font-weight:bold;">${d.actual}</td><td style="text-align:center;">${p}%</td><td>${status}</td></tr>`;
             }
+            let pct = totalTarget>0 ? ((totalActual/totalTarget)*100).toFixed(2) : 0;
+            document.getElementById('summaryBox').innerHTML = `อำเภอ${filterAmphoe} ยอดรวมเป้าหมายทั้งสิ้น <span class="highlight">${totalTarget}</span> คน<br>รายงานแล้ว <span class="highlight">${totalActual}</span> คน คิดเป็นร้อยละ <span class="highlight">${pct}%</span>`;
+        
+        } else if (displayMode === "SINGLE_TAMBON") {
+            // โหมดสำหรับสกร.ตำบล
+            let myTarget = allTargets.find(t => t.tambon === userArea);
+            totalTarget = myTarget ? (parseInt(myTarget.target) || 0) : 0;
+            let rep = allReports.filter(r => r.tambon === userArea);
+            totalActual = rep.length;
+            let pct = totalTarget > 0 ? ((totalActual/totalTarget)*100).toFixed(2) : 0;
+            let status = totalActual >= totalTarget && totalTarget > 0 ? "✅ ครบถ้วน" : "⏳ กำลังดำเนินการ";
+
+            progressHTML = `<tr><td>ตำบล${userArea}</td><td style="text-align:center;">${totalTarget}</td><td style="text-align:center; font-weight:bold;">${totalActual}</td><td style="text-align:center;">${pct}%</td><td>${status}</td></tr>`;
+            document.getElementById('summaryBox').innerHTML = `ตำบล${userArea} ยอดรวมเป้าหมายทั้งสิ้น <span class="highlight">${totalTarget}</span> คน<br>รายงานแล้ว <span class="highlight">${totalActual}</span> คน คิดเป็นร้อยละ <span class="highlight">${pct}%</span>`;
         }
+
         document.getElementById('progressTable').innerHTML = progressHTML;
     }
+
+    // --- ระบบจัดการเป้าหมายอำเภอ ---
+    let maxAmphoeTarget = 0;
 
     function toggleSetup() {
         const box = document.getElementById('targetSetupBox');
         if (box.style.display === "block") {
             box.style.display = "none";
         } else {
-            // สร้างช่องกรอกเป้าหมายตามตำบล
+            maxAmphoeTarget = parseInt(amphoeTargets[userArea]) || 0;
             const inputsDiv = document.getElementById('targetInputs');
             inputsDiv.innerHTML = '';
-            let tbs = tambonData[userAmphoe];
-            tbs.forEach(tb => {
-                // หาค่าเดิมถ้าเคยตั้งไว้แล้ว
-                let oldTgt = allTargets.find(t => t.amphoe === userAmphoe && t.tambon === tb);
-                let val = oldTgt ? oldTgt.target : 0;
-                inputsDiv.innerHTML += `
-                    <div class="target-item">
-                        <label>ต.${tb}</label>
-                        <input type="number" id="tgt_${tb}" value="${val}" min="0">
-                    </div>`;
+            
+            tambonData[userArea].forEach(tb => {
+                let old = allTargets.find(t => t.amphoe === userArea && t.tambon === tb);
+                let val = old ? old.target : 0;
+                inputsDiv.innerHTML += `<div class="target-item"><label>ต.${tb}</label><input type="number" id="tgt_${tb}" class="tgt-input" value="${val}" min="0" oninput="calculateSetupSum()"></div>`;
             });
+            
             box.style.display = "block";
+            calculateSetupSum();
+        }
+    }
+
+    function calculateSetupSum() {
+        let sum = 0;
+        document.querySelectorAll('.tgt-input').forEach(input => {
+            sum += parseInt(input.value) || 0;
+        });
+
+        let diff = maxAmphoeTarget - sum;
+        let diffHTML = diff === 0 ? `<span style="color:green;">จัดสรรครบพอดี ✅</span>` : 
+                       diff > 0 ? `<span style="color:red;">ยังขาดอีก ${diff} คน</span>` : 
+                       `<span style="color:red;">จัดสรรเกินเป้าหมาย ${Math.abs(diff)} คน</span>`;
+
+        document.getElementById('setupSummaryInfo').innerHTML = `
+            <b>เป้าหมายรวมที่จังหวัดกำหนด: <span style="font-size:18px;">${maxAmphoeTarget}</span> คน</b><br>
+            รวมตัวเลขที่ท่านกรอก: <b>${sum}</b> คน (${diffHTML})
+        `;
+
+        // บังคับให้ผลรวมเท่ากับเป้าหมายที่จังหวัดตั้งไว้ ถึงจะกดเซฟได้
+        const btn = document.getElementById('saveTargetBtn');
+        if (sum === maxAmphoeTarget && maxAmphoeTarget > 0) {
+            btn.disabled = false;
+        } else {
+            btn.disabled = true;
         }
     }
 
     function saveTargets() {
-        let payloadTargets = [];
-        tambonData[userAmphoe].forEach(tb => {
+        let payload = [];
+        tambonData[userArea].forEach(tb => {
             let val = document.getElementById('tgt_' + tb).value;
-            payloadTargets.push({ amphoe: userAmphoe, tambon: tb, target: parseInt(val) || 0 });
+            payload.push({ amphoe: userArea, tambon: tb, target: parseInt(val) || 0 });
         });
 
         Swal.fire({ title: 'กำลังบันทึกเป้าหมาย...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-
-        fetch(scriptURL, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'saveTargets', targets: payloadTargets })
-        }).then(res => res.json())
-        .then(data => {
+        fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: 'saveTargets', targets: payload }) })
+        .then(res => res.json()).then(data => {
             Swal.fire('สำเร็จ', 'บันทึกเป้าหมายเรียบร้อยแล้ว', 'success').then(() => window.location.reload());
-        }).catch(err => {
-            Swal.fire('ผิดพลาด', 'ไม่สามารถบันทึกได้', 'error');
-        });
+        }).catch(err => Swal.fire('ผิดพลาด', 'ไม่สามารถบันทึกได้', 'error'));
     }
 
-    function logout() {
-        localStorage.clear();
-        window.location.href = "login.html";
-    }
+    function logout() { localStorage.clear(); window.location.href = "login.html"; }
 </script>
 </body>
 </html>
