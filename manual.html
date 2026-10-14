@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infographic คู่มือระบบติดตาม EduPass สกร.ลำพูน</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --secondary: #0284c7;
+            --prov-color: #7c3aed;
+            --amp-color: #0d9488;
+            --tb-color: #ea580c;
+            --bg: #f1f5f9;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            padding: 20px;
+            color: #1e293b;
+        }
+        .infographic-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            overflow: hidden;
+            border: 1px solid #cbd5e1;
+        }
+        
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #0284c7 100%);
+            color: white;
+            padding: 30px 25px;
+            text-align: center;
+            position: relative;
+        }
+        .header h1 { margin: 0; font-size: 28px; font-weight: 700; letter-spacing: 0.5px; }
+        .header p { margin: 8px 0 0; font-size: 18px; opacity: 0.95; }
+        .badge-title {
+            display: inline-block;
+            background: #facc15;
+            color: #0f172a;
+            padding: 5px 16px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        /* ปุ่มลิงก์ตรง */
+        .quick-links {
+            display: flex;
+            justify-content: space-around;
+            background: #f8fafc;
+            padding: 20px 25px;
+            border-bottom: 2px dashed #cbd5e1;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .link-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: white;
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: 2px solid #cbd5e1;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            flex: 1;
+            min-width: 280px;
+            text-decoration: none;
+            color: #1e293b;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .link-card:hover {
+            border-color: #0284c7;
+            background: #f0f9ff;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(2, 132, 199, 0.15);
+        }
+        .link-icon {
+            font-size: 28px;
+            background: #e0f2fe;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+        }
+        .link-text small { color: #64748b; display: block; font-size: 13px; margin-bottom: 3px; }
+        .link-text span.btn-click-text { 
+            color: #0284c7; 
+            font-weight: 700; 
+            font-size: 16px; 
+            display: inline-block;
+            background: #e0f2fe;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+        .link-card:hover .link-text span.btn-click-text {
+            background: #0284c7;
+            color: white;
+        }
+
+        /* การเข้าใช้งานผ่านเว็บหลัก (ส่วนที่เพิ่มใหม่) */
+        .entry-steps-container {
+            margin: 20px 25px 0;
+            padding: 20px;
+            background: #ffffff;
+            border: 2px solid #93c5fd;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        .entry-title {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #1e3a8a;
+            margin-bottom: 15px;
+        }
+        .step-flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .flow-item {
+            flex: 1;
+            min-width: 250px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .flow-arrow {
+            font-size: 24px;
+            color: #94a3b8;
+            font-weight: bold;
+        }
+        .mock-menu-header {
+            background: #0284c7;
+            color: white;
+            padding: 6px 10px;
+            border-radius: 4px 4px 0 0;
+            font-weight: bold;
+            font-size: 14px;
+            display: block;
+        }
+        .mock-menu-btn {
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            padding: 6px;
+            font-size: 13px;
+            margin-top: 5px;
+            display: block;
+            border-radius: 4px;
+        }
+        .mock-menu-btn.active {
+            border: 2px solid #10b981;
+            background: #ecfdf5;
+            font-weight: bold;
+        }
+        .mock-split-btn {
+            display: block;
+            padding: 8px;
+            border-radius: 6px;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            text-decoration: none;
+        }
+        .bg-teal { background-color: #0d9488; }
+        .bg-orange { background-color: #f59e0b; }
+
+        /* 3 Columns Grid */
+        .roles-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 25px;
+        }
+        @media (max-width: 900px) {
+            .roles-grid { grid-template-columns: 1fr; }
+            .flow-arrow { display: none; }
+        }
+
+        .role-column {
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid;
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+        }
+        .role-prov { border-color: var(--prov-color); }
+        .role-amp { border-color: var(--amp-color); }
+        .role-tb { border-color: var(--tb-color); }
+
+        .role-header {
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+        .role-prov .role-header { background: var(--prov-color); }
+        .role-amp .role-header { background: var(--amp-color); }
+        .role-tb .role-header { background: var(--tb-color); }
+
+        .role-header h2 { margin: 0; font-size: 20px; }
+        .role-header span { font-size: 13px; opacity: 0.9; display: block; margin-top: 4px; }
+
+        .role-body { padding: 18px; flex: 1; display: flex; flex-direction: column; gap: 15px; }
+
+        /* Step Item */
+        .step-box {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+        .step-num {
+            min-width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            color: white;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            margin-top: 2px;
+        }
+        .role-prov .step-num { background: var(--prov-color); }
+        .role-amp .step-num { background: var(--amp-color); }
+        .role-tb .step-num { background: var(--tb-color); }
+
+        .step-content { flex: 1; font-size: 14px; line-height: 1.5; }
+        .step-content strong { color: #0f172a; display: block; margin-bottom: 2px; font-size: 15px; }
+
+        /* UI Mockup Graphics */
+        .ui-mockup {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 8px;
+            font-size: 12px;
+        }
+        .mock-blue-card { background: #007bff; color: white; padding: 8px; border-radius: 6px; text-align: center; font-weight: bold; font-size: 11px; }
+        .mock-yellow { color: #ffeb3b; font-size: 14px; }
+        .mock-btn { display: inline-block; padding: 4px 8px; border-radius: 4px; color: white; font-weight: bold; font-size: 11px; margin: 2px; }
+        .mock-input { background: white; border: 1px solid #94a3b8; padding: 4px 8px; border-radius: 4px; margin-top: 4px; color: #475569; font-size: 11px; }
+        .alert-rule { background: #fef2f2; border-left: 4px solid #ef4444; padding: 8px 10px; font-size: 12px; color: #991b1b; border-radius: 0 6px 6px 0; margin-top: 6px; }
+
+        /* Footer */
+        .footer {
+            background: #0f172a;
+            color: #94a3b8;
+            text-align: center;
+            padding: 15px;
+            font-size: 13px;
+        }
+
+        /* ปุ่มพิมพ์ */
+        .print-bar {
+            max-width: 1100px;
+            margin: 0 auto 15px;
+            display: flex;
+            justify-content: flex-end;
+        }
+        .btn-print {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-family: 'Sarabun', sans-serif;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+        }
+        .btn-print:hover { background: #1d4ed8; }
+
+        @media print {
+            body { background: white; padding: 0; }
+            .print-bar { display: none; }
+            .infographic-container { box-shadow: none; border: none; max-width: 100%; }
+            .roles-grid { grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 15px; }
+            .quick-links { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="print-bar">
+    <button class="btn-print" onclick="window.print()">🖨️ พิมพ์ / บันทึกเป็น PDF</button>
+</div>
+
+<div class="infographic-container">
+    <!-- ส่วนหัว -->
+    <div class="header">
+        <h1>การใช้งานระบบติดตามการลงทะเบียนแอปพลิเคชัน EduPass ของผู้เรียน</h1>
+        <p>สำนักงานส่งเสริมการเรียนรู้ประจำจังหวัดลำพูน</p>
+    </div>
+
+    <!-- แถบปุ่มลิงก์เข้าใช้งาน (ลิงก์ตรง) -->
+    <div class="quick-links">
+        <a href="https://lumiflowlpn.github.io/lpn-report-EduPass/" target="_blank" class="link-card">
+            <div class="link-icon">📝</div>
+            <div class="link-text">
+                <small>ลิงก์สำหรับผู้เรียน / บันทึกข้อมูลใหม่</small>
+                <span class="btn-click-text">👉 คลิกเพื่อลงทะเบียน</span>
+            </div>
+        </a>
+        <a href="https://lumiflowlpn.github.io/lpn-report-EduPass/login.html" target="_blank" class="link-card">
+            <div class="link-icon">🔒</div>
+            <div class="link-text">
+                <small>ลิงก์เข้าสู่ระบบ Dashboard (สำหรับแอดมิน)</small>
+                <span class="btn-click-text">👉 คลิกเพื่อเข้าสู่ระบบ</span>
+            </div>
+        </a>
+    </div>
+
+    <!-- ขั้นตอนการเข้าใช้งานผ่านเว็บหลัก (ส่วนที่เพิ่มใหม่) -->
+    <div class="entry-steps-container">
+        <div class="entry-title">🌐 ขั้นตอนการเข้าใช้งานผ่านเว็บไซต์หลัก สกร.ลำพูน</div>
+        <div class="step-flow">
+            <div class="flow-item">
+                <strong style="color:#0284c7; display:block; margin-bottom:5px;">ขั้นที่ 1</strong>
+                <span style="font-size:14px;">ไปที่เว็บไซต์ สกร.ลำพูน</span><br>
+                <a href="http://lpn.dole.go.th/lpn/" target="_blank" style="font-weight:bold; color:#1e3a8a; text-decoration:none;">lpn.dole.go.th/lpn/</a>
+            </div>
+            
+            <div class="flow-arrow">➔</div>
+
+            <div class="flow-item">
+                <strong style="color:#0284c7; display:block; margin-bottom:5px;">ขั้นที่ 2</strong>
+                <span style="font-size:14px; display:block; margin-bottom:5px;">ไปที่เมนู <b>"ระบบสารสนเทศ"</b></span>
+                <div style="border:1px solid #cbd5e1; border-radius:4px; padding:2px; background:white;">
+                    <span class="mock-menu-header">🌿 ระบบสารสนเทศ</span>
+                    <span class="mock-menu-btn">LAMPHUN MOOC</span>
+                    <span class="mock-menu-btn active">แอปพลิเคชัน Edu Pass</span>
+                </div>
+            </div>
+
+            <div class="flow-arrow">➔</div>
+
+            <div class="flow-item">
+                <strong style="color:#0284c7; display:block; margin-bottom:5px;">ขั้นที่ 3</strong>
+                <span style="font-size:14px; display:block; margin-bottom:5px;">เลือกปุ่มเข้าใช้งานที่ต้องการ</span>
+                <div class="mock-split-btn bg-teal">
+                    ติดตามการลงทะเบียนแอปฯ EduPass<br>ของ <u>บุคลากรทางการศึกษา</u>
+                </div>
+                <div class="mock-split-btn bg-orange">
+                    ติดตามการลงทะเบียนแอปฯ EduPass<br>ของ <u>ผู้เรียน</u>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3 คอลัมน์ แยกตามบทบาท -->
+    <div class="roles-grid">
+        
+        <!-- 1. ระดับจังหวัด -->
+        <div class="role-column role-prov">
+            <div class="role-header">
+                <h2>🏛️ 1. แอดมินระดับจังหวัด</h2>
+                <span>ติดตามภาพรวมทั้งจังหวัด & เจาะจงรายอำเภอ</span>
+            </div>
+            <div class="role-body">
+                <div class="step-box">
+                    <div class="step-num">1</div>
+                    <div class="step-content">
+                        <strong>เข้าสู่ระบบ (Login)</strong>
+                        ใช้ Username / Password สิทธิ์ระดับจังหวัด เพื่อเข้าสู่หน้า Dashboard
+                    </div>
+                </div>
+
+                <div class="step-box">
+                    <div class="step-num">2</div>
+                    <div class="step-content">
+                        <strong>ตรวจสอบภาพรวมจังหวัด</strong>
+                        ดูยอดเป้าหมายรวม จำนวนที่รายงานแล้ว และร้อยละความก้าวหน้าทั้งหมด
+                        <div class="ui-mockup">
+                            <div class="mock-blue-card">
+                                ภาพรวมจังหวัดลำพูน เป้าหมาย <span class="mock-yellow">X,XXX</span> คน<br>
+                                รายงานแล้ว <span class="mock-yellow">XXX</span> คน (<span class="mock-yellow">XX.XX%</span>)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-box">
+                    <div class="step-num">3</div>
+                    <div class="step-content">
+                        <strong>กรองดูข้อมูลรายอำเภอ</strong>
+                        เลือก Dropdown เพื่อดูความคืบหน้าแยกเป็นรายตำบลในอำเภอนั้นๆ
+                        <div class="ui-mockup">
+                            <b>ระดับการเรียกดู:</b>
+                            <div class="mock-input">▼ ภาพรวมทั้งหมด (ทุกอำเภอ)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-box">
+                    <div class="step-num">4</div>
+                    <div class="step-content">
+                        <strong>ส่งออกรายงาน (Export)</strong>
+                        ดาวน์โหลดข้อมูลรายบุคคลตามพื้นที่ที่เลือกเก็บไว้ใช้งาน
+                        <div class="ui-mockup" style="text-align:center;">
+                            <span class="mock-btn" style="background:#28a745;">📥 โหลด Excel</span>
+                            <span class="mock-btn" style="background:#f39c12;">📊 เปิด Google Sheets</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. ระดับอำเภอ -->
+        <div class="role-column role-amp">
+            <div class="role-header">
+                <h2>🏢 2. แอดมินระดับอำเภอ</h2>
+                <span>จัดสรรเป้าหมายให้ตำบล & ติดตามผลระดับอำเภอ</span>
+            </div>
+            <div class="role-body">
+                <div class="step-box">
+                    <div class="step-num">1</div>
+                    <div class="step-content">
+                        <strong>เข้าสู่ระบบสิทธิ์อำเภอ</strong>
+                        ล็อกอินด้วยรหัสประจำอำเภอ ระบบจะแสดงเฉพาะข้อมูลในอำเภอของท่าน
+                    </div>
+                </div>
+
+                <div class="step-box">
+                    <div class="step-num">2</div>
+                    <div class="step-content">
+                        <strong>จัดสรรเป้าหมายรายตำบล (สำคัญ!)</strong>
+                        คลิกปุ่มมุมขวาบนเพื่อกระจายยอดเป้าหมายให้แต่ละตำบล
+                        <div class="ui-mockup" style="text-align:center;">
+                            <span class="mock-btn" style="background:#17a2b8; padding:6px 12px;">⚙️ จัดสรรเป้าหมายรายตำบล</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-box">
+                    <div class="step-num">3</div>
+                    <div class="step-content">
+                        <strong>กรอกยอดให้ตรงกับเป้าจังหวัด</strong>
+                        ใส่ตัวเลขรายตำบล ระบบจะบวกเลขให้อัตโนมัติ
+                        <div class="ui-mockup" style="background:#fff3cd; border-color:#ffeeba;">
+                            <div style="font-size:11px; color:#856404;">
+                                เป้าหมายที่จังหวัดกำหนด: <b>1,457</b> คน<br>
+                                รวมที่กรอก: <b>1,457</b> คน <span style="color:green; font-weight:bold;">(ครบพอดี ✅)</span>
+                            </div>
+                            <span class="mock-btn" style="background:#28a745; display:block; text-align:center; margin-top:6px;">💾 บันทึกเป้าหมาย</span>
+                        </div>
+                        <div class="alert-rule">
+                            ⚠️ <b>เงื่อนไขบังคับ:</b> ยอดรวมทุกตำบลต้อง <u>เท่ากับ</u> เป้าหมายอำเภอที่จังหวัดตั้งไว้เท่านั้น ปุ่มบันทึกจึงจะกดได้
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-box">
+                    <div class="step-num">4</div>
+                    <div class="step-content">
+                        <strong>ติดตามผล & ดาวน์โหลดรายงาน</strong>
+                        ดูเปอร์เซ็นต์รายตำบล และกดปุ่มโหลดไฟล์ Excel หรือ Google Sheets ได้ทันที
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. ระดับตำบล -->
+        <div class="role-column role-tb">
+            <div class="role-header">
+                <h2>🏠 3. ระดับตำบล / ผู้บันทึก</h2>
+                <span>บันทึกข้อมูลผู้เรียน & แก้ไข/ลบรายชื่อในตำบล</span>
+            </div>
+            <div class="role-body">
+                <div class="step-box">
+                    <div class="step-num">1</div>
+                    <div class="step-content">
+                        <strong>การบันทึกข้อมูลผู้เรียนใหม่</strong>
+                        เข้าหน้าฟอร์มหลัก ➔ พิมพ์ชื่อ-สกุล ➔ เลือกอำเภอ ➔ เลือกตำบล ➔ แนบรูปแคปหน้าจอ EduPass
+                        <div class="ui-mockup">
+                            <div class="mock-input">ระบุ ชื่อ-นามสกุล</div>
+                            <div class="mock-input">▼ เลือกอำเภอ ➔ ▼ เลือกตำบล</div>
+                            <span class="mock-btn" style="background:#007bff; display:block; text-align:center; margin-top:6px;">บันทึกข้อมูล</span>
+                        </div>
+                        <div class="alert-rule">
+                            🚫 <b>ป้องกันข้อมูลซ้ำ:</b> หากชื่อ-สกุลซ้ำกับที่มีในระบบแล้ว จะไม่สามารถบันทึกซ้ำได้
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-box">
+                    <div class="step-num">2</div>
+                    <div class="step-content">
+                        <strong>การดูยอดของตำบลตนเอง</strong>
+                        ล็อกอินด้วยรหัสระดับตำบล จะเห็นยอดเป้าหมายและรายชื่อผู้เรียนเฉพาะตำบลตนเอง
+                    </div>
+                </div>
+
+                <div class="step-box">
+                    <div class="step-num">3</div>
+                    <div class="step-content">
+                        <strong>การเพิ่ม / แก้ไขชื่อ / ลบข้อมูล</strong>
+                        ในหน้า Dashboard ระดับตำบล มีปุ่มจัดการข้อมูลรายบุคคลให้ครบครัน:
+                        <div class="ui-mockup" style="text-align:center;">
+                            <span class="mock-btn" style="background:#28a745; display:block; margin-bottom:6px;">➕ เพิ่มข้อมูลผู้เรียนใหม่</span>
+                            <div style="border-top:1px dashed #cbd5e1; padding-top:6px;">
+                                ในตารางรายชื่อ:<br>
+                                <span class="mock-btn" style="background:#ffc107; color:#000;">แก้ไขชื่อ</span>
+                                <span class="mock-btn" style="background:#dc3545;">ลบข้อมูล</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ส่วนท้าย -->
+    <div class="footer">
+        ระบบติดตามการลงทะเบียนการเข้าใช้งานแอปพลิเคชัน EduPass ของผู้เรียน สกร.ลำพูน | งานเทคโนโลยีสารสนเทศ
+    </div>
+</div>
+
+</body>
+</html>
