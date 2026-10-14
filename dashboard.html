@@ -4,16 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard สรุปผล Edu Pass</title>
-    <!-- นำเข้า SweetAlert และไลบรารีส่งออก Excel (SheetJS) -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        body { font-family: 'Sarabun', sans-serif; background-color: #f4f7f6; padding: 20px; }
-        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px; }
-        .logout-btn { background-color: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
+        body { font-family: 'Sarabun', sans-serif; background-color: #f4f7f6; padding: 20px; margin: 0; }
+        .container { max-width: 1100px; margin: 0 auto; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 20px; flex-wrap: wrap; gap:10px;}
+        
+        .btn-logout { background-color: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight:bold; }
+        .btn-add { background-color: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight:bold; text-decoration: none; display: none; }
+        
         .filter-section { background: #e9ecef; padding: 15px; border-radius: 5px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap:10px;}
         select { padding: 8px; font-size: 16px; border-radius: 5px; border: 1px solid #ccc; }
+        
         table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 15px; }
         th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
         th { background-color: #34495e; color: white; text-align: center; }
@@ -22,6 +25,14 @@
         .summary-box { background: #007bff; color: white; padding: 20px; border-radius: 8px; text-align: center; font-size: 20px; margin-bottom: 20px; line-height: 1.6;}
         .highlight { font-size: 26px; font-weight: bold; color: #ffeb3b; }
         
+        /* ปุ่มส่งออกรายงาน */
+        .btn-excel { background-color: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-right: 5px;}
+        .btn-sheets { background-color: #f39c12; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        
+        /* ปุ่มจัดการรายบุคคล (แก้ไข/ลบ) */
+        .btn-edit { background-color: #ffc107; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; margin-bottom: 5px; width: 100%;}
+        .btn-del { background-color: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; width: 100%;}
+        
         #targetSetupBox { display: none; background: #fff3cd; border: 1px solid #ffeeba; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
         .setup-header { margin-bottom: 15px; font-size: 16px; color: #856404; }
         .target-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;}
@@ -29,7 +40,6 @@
         .btn-setup { background: #17a2b8; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold;}
         .btn-save { background: #28a745; color: white; border: none; padding: 12px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 20px; width: 100%; font-size: 16px;}
         .btn-save:disabled { background: #a5d8b0; cursor: not-allowed; }
-        .btn-excel { background-color: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -37,7 +47,10 @@
 <div class="container">
     <div class="header">
         <h2 style="margin:0;">📊 Dashboard สรุปผลการลงทะเบียน EduPass</h2>
-        <button class="logout-btn" onclick="logout()">ออกจากระบบ</button>
+        <div style="display:flex; gap:10px;">
+            <a href="index.html" class="btn-add" id="btnAddData">➕ เพิ่มข้อมูลผู้เรียนใหม่</a>
+            <button class="btn-logout" onclick="logout()">ออกจากระบบ</button>
+        </div>
     </div>
 
     <div class="filter-section" id="adminFilter">
@@ -86,25 +99,28 @@
         </table>
     </div>
 
-    <!-- ส่วนที่เพิ่มใหม่: ตารางแสดงรายชื่อบุคคลและปุ่มดาวน์โหลด Excel -->
     <div style="margin-top: 40px;">
-        <div class="header" style="border-bottom: none; margin-bottom: 5px;">
+        <div class="header" style="border-bottom: none; margin-bottom: 10px;">
             <h3 style="margin:0;">📋 รายชื่อผู้ที่ลงทะเบียนแล้ว (รายบุคคล)</h3>
-            <button class="btn-excel" onclick="exportToExcel()">📥 ดาวน์โหลดไฟล์ Excel</button>
+            <div>
+                <button class="btn-excel" onclick="exportToExcel()">📥 โหลด Excel</button>
+                <button class="btn-sheets" onclick="exportToGoogleSheets()">📊 เปิดใน Google Sheets</button>
+            </div>
         </div>
         <div style="overflow-x:auto;">
             <table>
                 <thead>
                     <tr>
-                        <th width="20%">วัน/เวลา</th>
+                        <th width="15%">วัน/เวลา</th>
                         <th width="15%">อำเภอ</th>
                         <th width="15%">ตำบล</th>
-                        <th width="35%">ชื่อ-นามสกุล</th>
+                        <th width="25%">ชื่อ-นามสกุล</th>
                         <th width="15%">หลักฐาน</th>
+                        <th width="15%" id="manageHeader">สถานะ</th>
                     </tr>
                 </thead>
                 <tbody id="individualTable">
-                    <tr><td colspan="5" style="text-align:center;">กำลังโหลดข้อมูล...</td></tr>
+                    <tr><td colspan="6" style="text-align:center;">กำลังโหลดข้อมูล...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -112,11 +128,11 @@
 </div>
 
 <script>
-    // *** นำ Web App URL ของคุณมาใส่ตรงนี้ ***
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbw1GstG5SlT2WfFBzk6N5oyZ2-EWjiEsWecM7xcKCAa_iFP-2RZCanUHRSTr3k1n0M/exec'; 
+    // *** นำ Web App URL อันใหม่ของคุณมาใส่ตรงนี้ ***
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbzpovLdt5jk5TOKcePko5N6anncr3g2CSclB69RgA_xKgkWQjuRs6HqdwWvKi35veC0Zw/exec'; 
 
     let allReports = [], allTargets = [], amphoeTargets = {};
-    let currentFilteredReports = []; // เก็บตัวแปรรายชื่อปัจจุบันเพื่อใช้ดาวน์โหลด Excel
+    let currentFilteredReports = []; 
     let userRole = localStorage.getItem("userRole"); 
     let userArea = localStorage.getItem("userAmphoe");
 
@@ -149,8 +165,16 @@
             if(userRole === "อำเภอ") {
                 document.getElementById('btnOpenSetup').style.display = "inline-block";
             }
+            if(userRole === "ตำบล") {
+                document.getElementById('btnAddData').style.display = "inline-block";
+                document.getElementById('manageHeader').innerText = "จัดการ";
+            }
         }
 
+        loadData();
+    };
+
+    function loadData() {
         fetch(scriptURL + "?action=getReport")
             .then(res => res.json())
             .then(data => {
@@ -158,170 +182,206 @@
                 allTargets = data.targets;
                 amphoeTargets = data.amphoeTargets || {};
                 renderTable();
-            }).catch(error => { console.error(error); });
-    };
+            }).catch(error => { 
+                Swal.fire('ข้อผิดพลาด', 'โหลดข้อมูลล้มเหลว', 'error');
+            });
+    }
 
     function renderTable() {
-        let displayMode = "AMPHOE"; 
-        let filterAmphoe = "";
+        let displayMode = "AMPHOE", filterAmphoe = "";
 
         if (userRole === "จังหวัด") {
             let sel = document.getElementById('amphoeSelect').value;
             displayMode = (sel === "ทั้งหมด") ? "AMPHOE" : "TAMBON";
             filterAmphoe = sel;
         } else if (userRole === "อำเภอ") {
-            displayMode = "TAMBON";
-            filterAmphoe = userArea;
+            displayMode = "TAMBON"; filterAmphoe = userArea;
         } else if (userRole === "ตำบล") {
-            displayMode = "SINGLE_TAMBON";
-            filterAmphoe = getAmphoeByTambon(userArea);
+            displayMode = "SINGLE_TAMBON"; filterAmphoe = getAmphoeByTambon(userArea);
         }
 
-        // กำหนดข้อมูลรายงานรายบุคคลที่จะแสดง
         let rep = (displayMode === "AMPHOE") ? allReports : 
                   (displayMode === "TAMBON") ? allReports.filter(r => r.amphoe === filterAmphoe) : 
                   allReports.filter(r => r.tambon === userArea);
         
-        currentFilteredReports = rep; // เก็บลงตัวแปรเพื่อใช้ดาวน์โหลด Excel
+        currentFilteredReports = rep; 
         let tgt = (displayMode === "AMPHOE") ? allTargets : allTargets.filter(t => t.amphoe === filterAmphoe);
 
         let totalTarget = 0, totalActual = 0;
         let progressHTML = '';
         document.getElementById('progressHeaderCol').innerText = (displayMode === "AMPHOE") ? "อำเภอ" : "ตำบล";
 
+        // ประมวลผลตารางด้านบน (ความคืบหน้า)
         if (displayMode === "AMPHOE") {
             let ampStats = {};
             Object.keys(tambonData).forEach(a => ampStats[a] = {target: parseInt(amphoeTargets[a]) || 0, actual: 0});
             rep.forEach(r => { if(ampStats[r.amphoe]) ampStats[r.amphoe].actual++; });
-            
             for(let a in ampStats) {
-                let d = ampStats[a];
-                totalTarget += d.target;
-                totalActual += d.actual;
+                let d = ampStats[a]; totalTarget += d.target; totalActual += d.actual;
                 let p = d.target > 0 ? ((d.actual/d.target)*100).toFixed(2) : 0;
                 let status = d.actual >= d.target && d.target > 0 ? "✅ ครบถ้วน" : "⏳ กำลังดำเนินการ";
                 progressHTML += `<tr><td>อำเภอ${a}</td><td style="text-align:center;">${d.target}</td><td style="text-align:center; font-weight:bold;">${d.actual}</td><td style="text-align:center;">${p}%</td><td>${status}</td></tr>`;
             }
             document.getElementById('summaryBox').innerHTML = `ภาพรวมจังหวัดลำพูน ยอดรวมเป้าหมายทั้งสิ้น <span class="highlight">${totalTarget}</span> คน<br>รายงานแล้ว <span class="highlight">${totalActual}</span> คน คิดเป็นร้อยละ <span class="highlight">${totalTarget>0 ? ((totalActual/totalTarget)*100).toFixed(2) : 0}%</span>`;
-        
         } else if (displayMode === "TAMBON") {
             let tbStats = {};
             tambonData[filterAmphoe].forEach(t => tbStats[t] = {target: 0, actual: 0});
             tgt.forEach(t => { if(tbStats[t.tambon]) tbStats[t.tambon].target = parseInt(t.target) || 0; });
             rep.forEach(r => { if(tbStats[r.tambon]) tbStats[r.tambon].actual++; });
-
             totalTarget = parseInt(amphoeTargets[filterAmphoe]) || 0; 
-            
             for(let t in tbStats) {
-                let d = tbStats[t];
-                totalActual += d.actual;
+                let d = tbStats[t]; totalActual += d.actual;
                 let p = d.target > 0 ? ((d.actual/d.target)*100).toFixed(2) : 0;
                 let status = d.actual >= d.target && d.target > 0 ? "✅ ครบถ้วน" : "⏳ กำลังดำเนินการ";
                 progressHTML += `<tr><td>ตำบล${t}</td><td style="text-align:center;">${d.target}</td><td style="text-align:center; font-weight:bold;">${d.actual}</td><td style="text-align:center;">${p}%</td><td>${status}</td></tr>`;
             }
             let pct = totalTarget>0 ? ((totalActual/totalTarget)*100).toFixed(2) : 0;
             document.getElementById('summaryBox').innerHTML = `อำเภอ${filterAmphoe} ยอดรวมเป้าหมายทั้งสิ้น <span class="highlight">${totalTarget}</span> คน<br>รายงานแล้ว <span class="highlight">${totalActual}</span> คน คิดเป็นร้อยละ <span class="highlight">${pct}%</span>`;
-        
         } else if (displayMode === "SINGLE_TAMBON") {
             let myTarget = tgt.find(t => t.tambon === userArea);
             totalTarget = myTarget ? (parseInt(myTarget.target) || 0) : 0;
             totalActual = rep.length;
             let pct = totalTarget > 0 ? ((totalActual/totalTarget)*100).toFixed(2) : 0;
-            let status = totalActual >= totalTarget && totalTarget > 0 ? "✅ ครบถ้วน" : "⏳ กำลังดำเนินการ";
-
-            progressHTML = `<tr><td>ตำบล${userArea}</td><td style="text-align:center;">${totalTarget}</td><td style="text-align:center; font-weight:bold;">${totalActual}</td><td style="text-align:center;">${pct}%</td><td>${status}</td></tr>`;
+            progressHTML = `<tr><td>ตำบล${userArea}</td><td style="text-align:center;">${totalTarget}</td><td style="text-align:center; font-weight:bold;">${totalActual}</td><td style="text-align:center;">${pct}%</td><td>${totalActual >= totalTarget && totalTarget > 0 ? "✅ ครบถ้วน" : "⏳ กำลังดำเนินการ"}</td></tr>`;
             document.getElementById('summaryBox').innerHTML = `ตำบล${userArea} ยอดรวมเป้าหมายทั้งสิ้น <span class="highlight">${totalTarget}</span> คน<br>รายงานแล้ว <span class="highlight">${totalActual}</span> คน คิดเป็นร้อยละ <span class="highlight">${pct}%</span>`;
         }
-
         document.getElementById('progressTable').innerHTML = progressHTML;
 
-        // --- แสดงผลตารางรายชื่อบุคคล ---
+        // --- ประมวลผลตารางรายชื่อบุคคล ---
         let individualHTML = '';
         if (rep.length === 0) {
-            individualHTML = '<tr><td colspan="5" style="text-align:center;">ยังไม่มีผู้รายงาน</td></tr>';
+            individualHTML = '<tr><td colspan="6" style="text-align:center;">ยังไม่มีผู้รายงาน</td></tr>';
         } else {
             rep.forEach(row => {
+                // หากเป็นแอดมินตำบล ให้แสดงปุ่มแก้ไข/ลบ
+                let manageCol = '<span style="color:green;">บันทึกแล้ว</span>';
+                if (userRole === "ตำบล") {
+                    manageCol = `
+                        <button class="btn-edit" onclick="editRow(${row.rowId}, '${row.name}')">แก้ไขชื่อ</button>
+                        <button class="btn-del" onclick="deleteRow(${row.rowId})">ลบข้อมูล</button>
+                    `;
+                }
+
                 individualHTML += `<tr>
                     <td>${row.timestamp}</td>
                     <td>${row.amphoe}</td>
                     <td>${row.tambon}</td>
                     <td>${row.name}</td>
-                    <td style="text-align:center;"><a href="${row.imageUrl}" target="_blank" style="color:#007bff; text-decoration:none; font-weight:bold;">คลิกดูรูป</a></td>
+                    <td style="text-align:center;"><a href="${row.imageUrl}" target="_blank" style="color:#007bff; font-weight:bold;">ดูรูป</a></td>
+                    <td style="text-align:center; vertical-align: middle;">${manageCol}</td>
                 </tr>`;
             });
         }
         document.getElementById('individualTable').innerHTML = individualHTML;
     }
 
-    // ฟังก์ชันสร้างและดาวน์โหลดไฟล์ Excel
+    // --- ฟังก์ชันแก้ไขชื่อ (สำหรับแอดมินตำบล) ---
+    function editRow(rowId, oldName) {
+        Swal.fire({
+            title: 'แก้ไขชื่อผู้เรียน',
+            input: 'text',
+            inputValue: oldName,
+            showCancelButton: true,
+            confirmButtonText: 'บันทึก',
+            cancelButtonText: 'ยกเลิก'
+        }).then((result) => {
+            if (result.isConfirmed && result.value.trim() !== "") {
+                Swal.fire({ title: 'กำลังบันทึก...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                fetch(scriptURL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'editReport', rowId: rowId, newName: result.value })
+                }).then(res => res.json()).then(data => {
+                    Swal.fire('สำเร็จ', 'อัปเดตชื่อเรียบร้อยแล้ว', 'success').then(() => loadData());
+                });
+            }
+        });
+    }
+
+    // --- ฟังก์ชันลบข้อมูล (สำหรับแอดมินตำบล) ---
+    function deleteRow(rowId) {
+        Swal.fire({
+            title: 'ยืนยันการลบข้อมูล?',
+            text: "หากลบแล้วจะไม่สามารถกู้คืนได้!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'ใช่, ลบเลย!',
+            cancelButtonText: 'ยกเลิก'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({ title: 'กำลังลบข้อมูล...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                fetch(scriptURL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'deleteReport', rowId: rowId })
+                }).then(res => res.json()).then(data => {
+                    Swal.fire('ลบสำเร็จ', 'ข้อมูลถูกลบออกจากระบบแล้ว', 'success').then(() => loadData());
+                });
+            }
+        });
+    }
+
+    // --- ฟังก์ชันดาวน์โหลด Excel (ลงเครื่อง) ---
     function exportToExcel() {
-        if (currentFilteredReports.length === 0) {
-            Swal.fire('ไม่พบข้อมูล', 'ไม่มีข้อมูลรายชื่อสำหรับดาวน์โหลด', 'info');
-            return;
-        }
-
-        // จัดรูปแบบข้อมูลสำหรับใส่ Excel
-        let exportData = currentFilteredReports.map(r => ({
-            "วัน/เวลาที่บันทึก": r.timestamp,
-            "อำเภอ": r.amphoe,
-            "ตำบล": r.tambon,
-            "ชื่อ-นามสกุล": r.name,
-            "ลิงก์ไฟล์หลักฐาน": r.imageUrl
-        }));
-
+        if (currentFilteredReports.length === 0) return Swal.fire('ไม่พบข้อมูล', '', 'info');
+        let exportData = currentFilteredReports.map(r => ({"วัน/เวลา": r.timestamp, "อำเภอ": r.amphoe, "ตำบล": r.tambon, "ชื่อ-นามสกุล": r.name, "ไฟล์หลักฐาน": r.imageUrl}));
         let ws = XLSX.utils.json_to_sheet(exportData);
         let wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "รายชื่อผู้ลงทะเบียน");
-        
-        // ตั้งชื่อไฟล์ตามสิทธิ์ที่ดึงดู
         let viewName = userRole === "จังหวัด" ? document.getElementById('amphoeSelect').value : userArea;
-        if(viewName === "ทั้งหมด") viewName = "จังหวัดลำพูน";
-        
-        let filename = "รายงาน_EduPass_" + viewName + ".xlsx";
-        XLSX.writeFile(wb, filename);
+        XLSX.writeFile(wb, "รายงาน_EduPass_" + (viewName === "ทั้งหมด" ? "จังหวัดลำพูน" : viewName) + ".xlsx");
     }
 
-    // --- ส่วนจัดการเป้าหมาย (ซ่อนเพื่อความกระชับ โค้ดเดิมยังอยู่ครบ) ---
+    // --- ฟังก์ชันสร้าง Google Sheets ใหม่ ---
+    function exportToGoogleSheets() {
+        if (currentFilteredReports.length === 0) return Swal.fire('ไม่พบข้อมูล', '', 'info');
+        Swal.fire({ title: 'กำลังสร้างไฟล์ Google Sheets...', text: 'อาจใช้เวลา 5-10 วินาที กรุณารอ', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+        
+        let viewName = userRole === "จังหวัด" ? document.getElementById('amphoeSelect').value : userArea;
+        if(viewName === "ทั้งหมด") viewName = "จังหวัดลำพูน";
+
+        fetch(scriptURL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'exportToSheets', viewName: viewName, exportData: currentFilteredReports })
+        }).then(res => res.json()).then(data => {
+            if(data.status === "success") {
+                Swal.fire({
+                    icon: 'success', title: 'สร้างไฟล์สำเร็จ!',
+                    html: `<a href="${data.url}" target="_blank" style="display:inline-block; margin-top:10px; padding:10px 20px; background:#28a745; color:white; text-decoration:none; border-radius:5px; font-weight:bold;">👉 คลิกเพื่อเปิด Google Sheets</a>`
+                });
+            } else {
+                Swal.fire('ผิดพลาด', 'ไม่สามารถสร้างไฟล์ได้', 'error');
+            }
+        });
+    }
+
+    // --- จัดการเป้าหมายอำเภอ ---
     let maxAmphoeTarget = 0;
     function toggleSetup() {
         const box = document.getElementById('targetSetupBox');
-        if (box.style.display === "block") {
-            box.style.display = "none";
-        } else {
+        if (box.style.display === "block") { box.style.display = "none"; } else {
             maxAmphoeTarget = parseInt(amphoeTargets[userArea]) || 0;
-            const inputsDiv = document.getElementById('targetInputs');
-            inputsDiv.innerHTML = '';
+            const inputsDiv = document.getElementById('targetInputs'); inputsDiv.innerHTML = '';
             tambonData[userArea].forEach(tb => {
                 let old = allTargets.find(t => t.amphoe === userArea && t.tambon === tb);
-                let val = old ? old.target : 0;
-                inputsDiv.innerHTML += `<div class="target-item"><label>ต.${tb}</label><input type="number" id="tgt_${tb}" class="tgt-input" value="${val}" min="0" oninput="calculateSetupSum()"></div>`;
+                inputsDiv.innerHTML += `<div class="target-item"><label>ต.${tb}</label><input type="number" id="tgt_${tb}" class="tgt-input" value="${old ? old.target : 0}" min="0" oninput="calculateSetupSum()"></div>`;
             });
-            box.style.display = "block";
-            calculateSetupSum();
+            box.style.display = "block"; calculateSetupSum();
         }
     }
-
     function calculateSetupSum() {
-        let sum = 0;
-        document.querySelectorAll('.tgt-input').forEach(input => { sum += parseInt(input.value) || 0; });
+        let sum = 0; document.querySelectorAll('.tgt-input').forEach(input => { sum += parseInt(input.value) || 0; });
         let diff = maxAmphoeTarget - sum;
-        let diffHTML = diff === 0 ? `<span style="color:green;">จัดสรรครบพอดี ✅</span>` : 
-                       diff > 0 ? `<span style="color:red;">ยังขาดอีก ${diff} คน</span>` : 
-                       `<span style="color:red;">จัดสรรเกินเป้าหมาย ${Math.abs(diff)} คน</span>`;
+        let diffHTML = diff === 0 ? `<span style="color:green;">จัดสรรครบพอดี ✅</span>` : diff > 0 ? `<span style="color:red;">ยังขาดอีก ${diff} คน</span>` : `<span style="color:red;">จัดสรรเกินเป้าหมาย ${Math.abs(diff)} คน</span>`;
         document.getElementById('setupSummaryInfo').innerHTML = `<b>เป้าหมายรวมที่จังหวัดกำหนด: <span style="font-size:18px;">${maxAmphoeTarget}</span> คน</b><br>รวมตัวเลขที่ท่านกรอก: <b>${sum}</b> คน (${diffHTML})`;
         document.getElementById('saveTargetBtn').disabled = !(sum === maxAmphoeTarget && maxAmphoeTarget > 0);
     }
-
     function saveTargets() {
         let payload = [];
-        tambonData[userArea].forEach(tb => {
-            let val = document.getElementById('tgt_' + tb).value;
-            payload.push({ amphoe: userArea, tambon: tb, target: parseInt(val) || 0 });
-        });
+        tambonData[userArea].forEach(tb => { payload.push({ amphoe: userArea, tambon: tb, target: parseInt(document.getElementById('tgt_' + tb).value) || 0 }); });
         Swal.fire({ title: 'กำลังบันทึกเป้าหมาย...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
         fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: 'saveTargets', targets: payload }) })
-        .then(res => res.json()).then(data => { Swal.fire('สำเร็จ', 'บันทึกเป้าหมายเรียบร้อยแล้ว', 'success').then(() => window.location.reload()); })
-        .catch(err => Swal.fire('ผิดพลาด', 'ไม่สามารถบันทึกได้', 'error'));
+        .then(res => res.json()).then(data => { Swal.fire('สำเร็จ', 'บันทึกเป้าหมายเรียบร้อย', 'success').then(() => loadData()); });
     }
 
     function logout() { localStorage.clear(); window.location.href = "login.html"; }
