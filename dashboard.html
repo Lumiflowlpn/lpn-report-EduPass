@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard สรุปผล Edu Pass</title>
+    <title>Dashboard สรุปผลการลงทะเบียนการเข้าใช้งานแอปพลิเคชัน EduPass ของผู้เรียน สกร.ลำพูน Edu Pass</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
@@ -46,16 +46,16 @@
 
 <div class="container">
     <div class="header">
-        <h2 style="margin:0;">📊 Dashboard สรุปผลการลงทะเบียน EduPass</h2>
+        <h2 style="margin:0;">สรุปผลการลงทะเบียนการเข้าใช้งานแอปพลิเคชัน EduPass ของผู้เรียน สกร.ลำพูน</h2>
         <div style="display:flex; gap:10px;">
-            <a href="index.html" class="btn-add" id="btnAddData">➕ เพิ่มข้อมูลผู้เรียนใหม่</a>
+            <a href="index.html" class="btn-add" id="btnAddData">➕ เพิ่มข้อมูลผู้เรียน</a>
             <button class="btn-logout" onclick="logout()">ออกจากระบบ</button>
         </div>
     </div>
 
     <div class="filter-section" id="adminFilter">
         <div>
-            <b id="roleLabel">ระดับการเรียกดู: </b>
+            <b id="roleLabel">สถานศึกษา: </b>
             <select id="amphoeSelect" onchange="renderTable()" style="display:none;">
                 <option value="ทั้งหมด">ภาพรวมทั้งหมด (ทุกอำเภอ)</option>
                 <option value="เมืองลำพูน">เมืองลำพูน</option>
@@ -69,11 +69,11 @@
             </select>
             <span id="areaLabel" style="font-size: 18px; font-weight: bold; color: #007bff; display:none;"></span>
         </div>
-        <button id="btnOpenSetup" class="btn-setup" style="display:none;" onclick="toggleSetup()">⚙️ จัดสรรเป้าหมายรายตำบล</button>
+        <button id="btnOpenSetup" class="btn-setup" style="display:none;" onclick="toggleSetup()">⚙️ อำเภอจัดสรรยอดเป้าหมายรายตำบล</button>
     </div>
 
     <div id="targetSetupBox">
-        <h3 style="margin-top:0; color:#856404;">⚙️ จัดสรรยอดเป้าหมายรายตำบล</h3>
+        <h3 style="margin-top:0; color:#856404;">⚙️ อำเภอจัดสรรยอดเป้าหมายรายตำบล</h3>
         <div class="setup-header" id="setupSummaryInfo"></div>
         <div id="targetInputs" class="target-grid"></div>
         <button id="saveTargetBtn" class="btn-save" onclick="saveTargets()" disabled>💾 บันทึกเป้าหมาย</button>
@@ -82,7 +82,7 @@
     <div class="summary-box" id="summaryBox"></div>
 
     <div style="overflow-x:auto;">
-        <h3>📌 ความคืบหน้าการลงทะเบียนเทียบเป้าหมาย</h3>
+        <h3>ความคืบหน้าการลงทะเบียนเทียบเป้าหมาย</h3>
         <table>
             <thead>
                 <tr>
@@ -101,7 +101,7 @@
 
     <div style="margin-top: 40px;">
         <div class="header" style="border-bottom: none; margin-bottom: 10px;">
-            <h3 style="margin:0;">📋 รายชื่อผู้ที่ลงทะเบียนแล้ว (รายบุคคล)</h3>
+            <h3 style="margin:0;">รายชื่อผู้เรียนที่ลงทะเบียนแล้ว (รายบุคคล)</h3>
             <div>
                 <button class="btn-excel" onclick="exportToExcel()">📥 โหลด Excel</button>
                 <button class="btn-sheets" onclick="exportToGoogleSheets()">📊 เปิดใน Google Sheets</button>
@@ -159,7 +159,7 @@
             document.getElementById('amphoeSelect').style.display = "inline-block";
         } else {
             document.getElementById('areaLabel').style.display = "inline-block";
-            let prefix = userRole === "อำเภอ" ? "สกร.อำเภอ " : "สกร.ตำบล ";
+            let prefix = userRole === "อำเภอ" ? "สกร.ระดับอำเภอ" : "ศกร.ระดับตำบล";
             document.getElementById('areaLabel').innerText = prefix + userArea;
             
             if(userRole === "อำเภอ") {
