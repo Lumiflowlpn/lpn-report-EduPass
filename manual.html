@@ -53,7 +53,7 @@
             margin-bottom: 10px;
         }
 
-        /* ปุ่มลิงก์ตรง */
+        /* ปุ่มลิงก์ตรง (ปรับให้โดดเด่นขึ้นตามภาพตัวอย่าง) */
         .quick-links {
             display: flex;
             justify-content: space-around;
@@ -61,127 +61,68 @@
             padding: 20px 25px;
             border-bottom: 2px dashed #cbd5e1;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 20px; 
         }
         .link-card {
             display: flex;
             align-items: center;
-            gap: 12px;
-            background: white;
-            padding: 12px 20px;
+            gap: 15px; 
+            background: #ffffff; 
+            padding: 20px 25px; /* เพิ่ม padding ให้ปุ่มใหญ่ขึ้น */
             border-radius: 12px;
-            border: 2px solid #cbd5e1;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 2px solid #cbd5e1; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05); 
             flex: 1;
-            min-width: 280px;
+            min-width: 320px; /* เพิ่มความกว้างขั้นต่ำ */
             text-decoration: none;
             color: #1e293b;
             transition: all 0.3s ease;
             cursor: pointer;
         }
         .link-card:hover {
-            border-color: #0284c7;
-            background: #f0f9ff;
-            transform: translateY(-3px);
-            box-shadow: 0 8px 15px rgba(2, 132, 199, 0.15);
+            border-color: #0284c7; 
+            background: #f0f9ff; 
+            transform: translateY(-5px); 
+            box-shadow: 0 8px 20px rgba(2, 132, 199, 0.15); 
         }
         .link-icon {
-            font-size: 28px;
+            font-size: 40px; /* ขยายไอคอน */
             background: #e0f2fe;
-            width: 50px;
-            height: 50px;
+            width: 70px; /* ขยายพื้นหลังไอคอน */
+            height: 70px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 10px;
+            border-radius: 12px;
+            color: #0284c7; 
         }
-        .link-text small { color: #64748b; display: block; font-size: 13px; margin-bottom: 3px; }
+        .link-text {
+            display: flex;
+            flex-direction: column;
+            gap: 8px; /* ระยะห่างระหว่างบรรทัด */
+        }
+        .link-text small { 
+            color: #64748b; 
+            font-size: 15px; /* ขยายขนาดข้อความด้านบน */
+            font-weight: 600; 
+        }
         .link-text span.btn-click-text { 
             color: #0284c7; 
             font-weight: 700; 
-            font-size: 16px; 
-            display: inline-block;
-            background: #e0f2fe;
-            padding: 2px 8px;
-            border-radius: 4px;
+            font-size: 18px; /* ขยายข้อความปุ่ม */
+            display: inline-flex; /* ปรับเป็น flex เพื่อจัดไอคอนและข้อความ */
+            align-items: center;
+            gap: 8px;
+            background: #e0f2fe; 
+            padding: 8px 16px; /* เพิ่ม padding */
+            border-radius: 8px; 
+            transition: all 0.3s ease;
         }
         .link-card:hover .link-text span.btn-click-text {
-            background: #0284c7;
+            background: #0284c7; 
             color: white;
+            box-shadow: 0 4px 8px rgba(2, 132, 199, 0.3);
         }
-
-        /* การเข้าใช้งานผ่านเว็บหลัก (ส่วนที่เพิ่มใหม่) */
-        .entry-steps-container {
-            margin: 20px 25px 0;
-            padding: 20px;
-            background: #ffffff;
-            border: 2px solid #93c5fd;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-        }
-        .entry-title {
-            text-align: center;
-            font-size: 18px;
-            font-weight: bold;
-            color: #1e3a8a;
-            margin-bottom: 15px;
-        }
-        .step-flow {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-        .flow-item {
-            flex: 1;
-            min-width: 250px;
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-        }
-        .flow-arrow {
-            font-size: 24px;
-            color: #94a3b8;
-            font-weight: bold;
-        }
-        .mock-menu-header {
-            background: #0284c7;
-            color: white;
-            padding: 6px 10px;
-            border-radius: 4px 4px 0 0;
-            font-weight: bold;
-            font-size: 14px;
-            display: block;
-        }
-        .mock-menu-btn {
-            background: #f1f5f9;
-            border: 1px solid #cbd5e1;
-            padding: 6px;
-            font-size: 13px;
-            margin-top: 5px;
-            display: block;
-            border-radius: 4px;
-        }
-        .mock-menu-btn.active {
-            border: 2px solid #10b981;
-            background: #ecfdf5;
-            font-weight: bold;
-        }
-        .mock-split-btn {
-            display: block;
-            padding: 8px;
-            border-radius: 6px;
-            color: white;
-            font-size: 12px;
-            font-weight: bold;
-            margin-bottom: 8px;
-            text-decoration: none;
-        }
-        .bg-teal { background-color: #0d9488; }
-        .bg-orange { background-color: #f59e0b; }
 
         /* 3 Columns Grid */
         .roles-grid {
@@ -192,7 +133,6 @@
         }
         @media (max-width: 900px) {
             .roles-grid { grid-template-columns: 1fr; }
-            .flow-arrow { display: none; }
         }
 
         .role-column {
@@ -328,43 +268,6 @@
                 <span class="btn-click-text">👉 คลิกเพื่อเข้าสู่ระบบ</span>
             </div>
         </a>
-    </div>
-
-    <!-- ขั้นตอนการเข้าใช้งานผ่านเว็บหลัก (ส่วนที่เพิ่มใหม่) -->
-    <div class="entry-steps-container">
-        <div class="entry-title">🌐 ขั้นตอนการเข้าใช้งานผ่านเว็บไซต์หลัก สกร.ลำพูน</div>
-        <div class="step-flow">
-            <div class="flow-item">
-                <strong style="color:#0284c7; display:block; margin-bottom:5px;">ขั้นที่ 1</strong>
-                <span style="font-size:14px;">ไปที่เว็บไซต์ สกร.ลำพูน</span><br>
-                <a href="http://lpn.dole.go.th/lpn/" target="_blank" style="font-weight:bold; color:#1e3a8a; text-decoration:none;">lpn.dole.go.th/lpn/</a>
-            </div>
-            
-            <div class="flow-arrow">➔</div>
-
-            <div class="flow-item">
-                <strong style="color:#0284c7; display:block; margin-bottom:5px;">ขั้นที่ 2</strong>
-                <span style="font-size:14px; display:block; margin-bottom:5px;">ไปที่เมนู <b>"ระบบสารสนเทศ"</b></span>
-                <div style="border:1px solid #cbd5e1; border-radius:4px; padding:2px; background:white;">
-                    <span class="mock-menu-header">🌿 ระบบสารสนเทศ</span>
-                    <span class="mock-menu-btn">LAMPHUN MOOC</span>
-                    <span class="mock-menu-btn active">แอปพลิเคชัน Edu Pass</span>
-                </div>
-            </div>
-
-            <div class="flow-arrow">➔</div>
-
-            <div class="flow-item">
-                <strong style="color:#0284c7; display:block; margin-bottom:5px;">ขั้นที่ 3</strong>
-                <span style="font-size:14px; display:block; margin-bottom:5px;">เลือกปุ่มเข้าใช้งานที่ต้องการ</span>
-                <div class="mock-split-btn bg-teal">
-                    ติดตามการลงทะเบียนแอปฯ EduPass<br>ของ <u>บุคลากรทางการศึกษา</u>
-                </div>
-                <div class="mock-split-btn bg-orange">
-                    ติดตามการลงทะเบียนแอปฯ EduPass<br>ของ <u>ผู้เรียน</u>
-                </div>
-            </div>
-        </div>
     </div>
 
     <!-- 3 คอลัมน์ แยกตามบทบาท -->

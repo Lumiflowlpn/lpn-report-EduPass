@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>หน้าแรก - ระบบติดตาม EduPass สกร.ลำพูน</title>
+    <!-- นำเข้าฟอนต์ Sarabun และ SweetAlert2 -->
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background: linear-gradient(135deg, #e0f2fe 0%, #f1f5f9 100%);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background: white;
+            padding: 50px 30px;
+            border-radius: 24px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        .logo-icon {
+            font-size: 65px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #1e3a8a;
+            margin-bottom: 10px;
+            font-size: 30px;
+            font-weight: 700;
+        }
+        p.subtitle {
+            color: #64748b;
+            font-size: 18px;
+            margin-bottom: 40px;
+        }
+        
+        /* จัด Layout ให้เป็น 2 คอลัมน์ */
+        .card-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .card-container { grid-template-columns: 1fr; }
+        }
+
+        /* ตกแต่งปุ่ม Card */
+        .card {
+            background: #ffffff;
+            border: 2px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 40px 25px;
+            text-decoration: none;
+            color: #334155;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+        }
+
+        /* แยกสีปุ่มตามประเภท */
+        .card.teacher { border-color: #cbd5e1; }
+        .card.teacher:hover { border-color: #f59e0b; }
+        
+        .card.student { border-color: #bfdbfe; }
+        .card.student:hover { border-color: #0ea5e9; }
+
+        .card-icon {
+            font-size: 60px;
+            margin-bottom: 25px;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .card.teacher .card-icon { color: #94a3b8; background: #f8fafc; }
+        .card.teacher:hover .card-icon { color: #f59e0b; background: #fef3c7; }
+        
+        .card.student .card-icon { color: #0ea5e9; background: #e0f2fe; }
+        .card.student:hover .card-icon { color: white; background: #0ea5e9; }
+        
+        .card-title {
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 1.5;
+        }
+        
+        /* ป้ายกำกับสถานะ (Badge) */
+        .badge {
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        .badge-soon { background: #fef3c7; color: #d97706; border: 1px solid #fde68a; }
+        .badge-active { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+
+        .footer {
+            margin-top: 40px;
+            color: #94a3b8;
+            font-size: 14px;
+            border-top: 1px dashed #cbd5e1;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="logo-icon">📱</div>
+    <h1>ระบบติดตามการลงทะเบียนการเข้าใช้งานแอปพลิเคชัน EduPass</h1>
+    <p class="subtitle">สำนักงานส่งเสริมการเรียนรู้ประจำจังหวัดลำพูน (สกร.ลำพูน)</p>
+
+    <div class="card-container">
+        
+        <!-- ปุ่มที่ 1: บุคลากรทางการศึกษา (กำลังสร้าง) -->
+        <div class="card teacher" onclick="showComingSoon()">
+            <div class="card-icon">👨‍🏫</div>
+            <div class="card-title">
+                ระบบติดตามการลงทะเบียน<br>การเข้าใช้งานแอปพลิเคชัน EduPass<br>
+                <span style="color:#d97706;">ของบุคลากรทางการศึกษา</span>
+            </div>
+            <div class="badge badge-soon">⏳ กำลังดำเนินการจัดสร้าง...</div>
+        </div>
+
+        <!-- ปุ่มที่ 2: ผู้เรียน (เปิดใช้งานแล้ว ฝังลิงก์ไปยังคู่มือ) -->
+        <a href="https://lumiflowlpn.github.io/lpn-report-EduPass/manual.html" class="card student">
+            <div class="card-icon">🎓</div>
+            <div class="card-title">
+                ระบบติดตามการลงทะเบียน<br>การเข้าใช้งานแอปพลิเคชัน EduPass<br>
+                <span style="color:#0ea5e9;">ของผู้เรียน</span>
+            </div>
+            <div class="badge badge-active">✅ คลิกเข้าใช้งาน)</div>
+        </a>
+
+    </div>
+
+    <div class="footer">
+        ระบบสารสนเทศเพื่อการบริหารจัดการ สกร.ลำพูน
+    </div>
+</div>
+
+<script>
+    // ฟังก์ชันสำหรับแจ้งเตือนเมื่อคลิกปุ่มที่กำลังสร้าง
+    function showComingSoon() {
+        Swal.fire({
+            icon: 'info',
+            title: 'ระบบกำลังดำเนินการจัดสร้าง',
+            text: 'ส่วนการติดตามการลงทะเบียนของ "บุคลากรทางการศึกษา" กำลังอยู่ระหว่างการพัฒนาระบบ จะเปิดให้ใช้งานเร็วๆ นี้ครับ',
+            confirmButtonText: 'รับทราบ',
+            confirmButtonColor: '#3b82f6'
+        });
+    }
+</script>
+
+</body>
+</html>
