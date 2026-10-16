@@ -78,7 +78,8 @@
         }
 
         /* แยกสีปุ่มตามประเภท */
-        .card.teacher { border-color: #cbd5e1; }
+        /* --- ปรับปรุงปุ่มบุคลากรให้ดูพร้อมใช้งานและเด่นขึ้น --- */
+        .card.teacher { border-color: #fde68a; }
         .card.teacher:hover { border-color: #f59e0b; }
         
         .card.student { border-color: #bfdbfe; }
@@ -96,11 +97,12 @@
             transition: all 0.3s ease;
         }
         
-        .card.teacher .card-icon { color: #94a3b8; background: #f8fafc; }
-        .card.teacher:hover .card-icon { color: #f59e0b; background: #fef3c7; }
+        /* เปลี่ยนไอคอนครูให้มีสีสัน (ไม่เป็นสีเทาแล้ว) */
+        .card.teacher .card-icon { color: #f59e0b; background: #fef3c7; }
+        .card.teacher:hover .card-icon { color: white; background: #f59e0b; box-shadow: 0 10px 20px rgba(245, 158, 11, 0.3); }
         
         .card.student .card-icon { color: #0ea5e9; background: #e0f2fe; }
-        .card.student:hover .card-icon { color: white; background: #0ea5e9; }
+        .card.student:hover .card-icon { color: white; background: #0ea5e9; box-shadow: 0 10px 20px rgba(14, 165, 233, 0.3); }
         
         .card-title {
             font-size: 20px;
@@ -110,14 +112,36 @@
         
         /* ป้ายกำกับสถานะ (Badge) */
         .badge {
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-size: 14px;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 15px;
             font-weight: bold;
             margin-top: 20px;
+            transition: all 0.3s ease;
         }
-        .badge-soon { background: #fef3c7; color: #d97706; border: 1px solid #fde68a; }
-        .badge-active { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        
+        /* Badge สำหรับครู (ออกแบบให้เหมือนปุ่มกดที่โดดเด่น) */
+        .badge-teacher-active { 
+            background: #f59e0b; 
+            color: white; 
+            border: 1px solid #d97706; 
+            box-shadow: 0 4px 10px rgba(245, 158, 11, 0.25);
+        }
+        .card.teacher:hover .badge-teacher-active {
+            background: #d97706;
+            transform: scale(1.05);
+        }
+
+        /* Badge สำหรับผู้เรียน */
+        .badge-student-active { 
+            background: #e0f2fe; 
+            color: #0284c7; 
+            border: 1px solid #bae6fd; 
+        }
+        .card.student:hover .badge-student-active {
+            background: #0284c7;
+            color: white;
+        }
 
         .footer {
             margin-top: 40px;
@@ -133,28 +157,28 @@
 <div class="container">
     <div class="logo-icon">📱</div>
     <h1>ระบบติดตามการลงทะเบียนการเข้าใช้งานแอปพลิเคชัน EduPass</h1>
-    <p class="subtitle">สำนักงานส่งเสริมการเรียนรู้ประจำจังหวัดลำพูน (สกร.ลำพูน)</p>
+    <p class="subtitle">สำนักงานส่งเสริมการเรียนรู้ประจำจังหวัดลำพูน</p>
 
     <div class="card-container">
         
-        <!-- ปุ่มที่ 1: บุคลากรทางการศึกษา (กำลังสร้าง) -->
-        <div class="card teacher" onclick="showComingSoon()">
+        <!-- ปุ่มที่ 1: บุคลากรทางการศึกษา (ฝังลิงก์ใหม่ และปรับดีไซน์ให้โดดเด่น) -->
+        <a href="https://lumiflowlpn.github.io/lamphun-report-EduPass/manual-tec.html" class="card teacher">
             <div class="card-icon">👨‍🏫</div>
             <div class="card-title">
                 ระบบติดตามการลงทะเบียน<br>การเข้าใช้งานแอปพลิเคชัน EduPass<br>
                 <span style="color:#d97706;">ของบุคลากรทางการศึกษา</span>
             </div>
-            <div class="badge badge-soon">⏳ กำลังดำเนินการจัดสร้าง...</div>
-        </div>
+            <div class="badge badge-teacher-active">👉 คลิกเพื่อเข้าใช้งาน</div>
+        </a>
 
-        <!-- ปุ่มที่ 2: ผู้เรียน (เปิดใช้งานแล้ว ฝังลิงก์ไปยังคู่มือ) -->
+        <!-- ปุ่มที่ 2: ผู้เรียน -->
         <a href="https://lumiflowlpn.github.io/lpn-report-EduPass/manual.html" class="card student">
             <div class="card-icon">🎓</div>
             <div class="card-title">
                 ระบบติดตามการลงทะเบียน<br>การเข้าใช้งานแอปพลิเคชัน EduPass<br>
                 <span style="color:#0ea5e9;">ของผู้เรียน</span>
             </div>
-            <div class="badge badge-active">✅ คลิกเข้าใช้งาน)</div>
+            <div class="badge badge-student-active">✅ คลิกเข้าใช้งาน</div>
         </a>
 
     </div>
@@ -164,18 +188,7 @@
     </div>
 </div>
 
-<script>
-    // ฟังก์ชันสำหรับแจ้งเตือนเมื่อคลิกปุ่มที่กำลังสร้าง
-    function showComingSoon() {
-        Swal.fire({
-            icon: 'info',
-            title: 'ระบบกำลังดำเนินการจัดสร้าง',
-            text: 'ส่วนการติดตามการลงทะเบียนของ "บุคลากรทางการศึกษา" กำลังอยู่ระหว่างการพัฒนาระบบ จะเปิดให้ใช้งานเร็วๆ นี้ครับ',
-            confirmButtonText: 'รับทราบ',
-            confirmButtonColor: '#3b82f6'
-        });
-    }
-</script>
+<!-- ลบ Script แจ้งเตือน Coming Soon ออก เพราะพร้อมใช้งานแล้ว -->
 
 </body>
 </html>
