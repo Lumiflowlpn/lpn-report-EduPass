@@ -51,15 +51,33 @@
             <option value="เวียงหนองล่อง">เวียงหนองล่อง</option>
         </select>
 
-        <!-- เพิ่มช่องตำบล และตั้งค่าให้ปิดไว้ก่อนจนกว่าจะเลือกอำเภอ -->
         <label>ศูนย์ส่งเสริมการเรียนรู้ระดับตำบล:</label>
         <select id="tambon" required disabled>
             <option value="">-- กรุณาเลือกอำเภอก่อน --</option>
         </select>
 
-        <label>แนบภาพถ่ายหน้าจอการลงทะเบียนสำเร็จ:</label>
-        <input type="file" id="uploadFile" accept="image/*" required>
-        <span class="note">* กรุณาแนบไฟล์ภาพ (JPG, PNG) เท่านั้น</span>
+        <label>สถานะการลงทะเบียน:</label>
+        <select id="regStatus" onchange="toggleReason()" required>
+            <option value="" disabled selected>-- กรุณาเลือกสถานะ --</option> 
+            <option value="สำเร็จ">✅ ลงทะเบียนสำเร็จ</option>
+            <option value="ไม่สำเร็จ">❌ ไม่สามารถลงทะเบียนได้</option>
+        </select>
+
+        <div id="reasonDiv" style="display:none; margin-top: 15px; padding: 15px; background-color: #fff3cd; border-left: 4px solid #ffc107; border-radius: 4px;">
+            <label style="margin-top: 0; color: #856404;">หมายเหตุ : ไม่สามารถลงทะเบียนได้เนื่องจาก</label>
+            <select id="reason">
+                <option value="">-- กรุณาเลือกหมายเหตุ --</option>
+                <option value="ไม่มีสัญชาติไทย">ไม่มีสัญชาติไทย</option>
+                <option value="ไม่มีโทรศัพท์มือถือ">ไม่มีโทรศัพท์มือถือ</option>
+                <option value="อยู่ในเรือนจำ/สถานพินิจ">อยู่ในเรือนจำ/สถานพินิจ</option>
+            </select>
+        </div>
+
+        <div id="uploadDiv" style="display:none;">
+            <label>แนบภาพถ่ายหน้าจอการลงทะเบียนสำเร็จ:</label>
+            <input type="file" id="uploadFile" accept="image/*">
+            <span class="note">* กรุณาแนบไฟล์ภาพ (JPG, PNG) เท่านั้น</span>
+        </div>
 
         <button type="submit" id="submitBtn">บันทึกข้อมูล</button>
     </form>
@@ -69,7 +87,8 @@
         <a href="login.html" class="btn-link btn-login">🔒 เข้าสู่ระบบเรียกดูรายงานผล (สำหรับแอดมิน)</a>
     </div>
 
-    <div class="sample-box">
+    <!-- เอา style="display:none;" ออก เพื่อให้รูปแสดงตั้งแต่เริ่ม -->
+    <div class="sample-box" id="sampleBox">
         <span class="sample-title">📌 ตัวอย่างไฟล์ภาพหลักฐานที่ต้องแนบ</span>
         <img src="https://i.postimg.cc/htdjx9BF/274910.png" alt="ตัวอย่างหลักฐาน">
     </div>
@@ -77,9 +96,8 @@
 
 <script>
     // *** นำ Web App URL อันใหม่ของคุณมาใส่ตรงนี้ ***
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbzpovLdt5jk5TOKcePko5N6anncr3g2CSclB69RgA_xKgkWQjuRs6HqdwWvKi35veC0Zw/exec'; 
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbzz5Z2cIVThEYu3DwG868kdjL3VSWSobn6QsQbjwlIALwD_O48XmEOx_LKxzpHzNQTOuw/exec'; 
 
-    // ฐานข้อมูลตำบล
     const tambonData = {
         "เมืองลำพูน": ["ในเมือง", "เหมืองง่า", "อุโมงค์", "หนองช้างคืน", "ประตูป่า", "ริมปิง", "ต้นธง", "บ้านแป้น", "เหมืองจี้", "ป่าสัก", "เวียงยอง", "บ้านกลาง", "มะเขือแจ้", "ศรีบัวบาน", "หนองหนาม"],
         "แม่ทา": ["ทาปลาดุก", "ทาสบเส้า", "ทากาศ", "ทาขุมเงิน", "ทาทุ่งหลวง", "ทาแม่ลอบ"],
@@ -91,18 +109,14 @@
         "เวียงหนองล่อง": ["หนองล่อง", "หนองยวง", "วังผาง"]
     };
 
-    // คำสั่งให้เปลี่ยนตัวเลือกตำบล เมื่อผู้ใช้เลือกอำเภอ
     document.getElementById('amphoe').addEventListener('change', function(e) {
         const amphoe = e.target.value;
         const tambonSelect = document.getElementById('tambon');
-        
         tambonSelect.innerHTML = '<option value="">-- กรุณาเลือกตำบล --</option>';
-        
         if(amphoe && tambonData[amphoe]) {
             tambonData[amphoe].forEach(t => {
                 let opt = document.createElement('option');
-                opt.value = t;
-                opt.textContent = t;
+                opt.value = t; opt.textContent = t;
                 tambonSelect.appendChild(opt);
             });
             tambonSelect.disabled = false;
@@ -112,62 +126,112 @@
         }
     });
 
-    // คำสั่งบันทึกข้อมูล
+    function toggleReason() {
+        const status = document.getElementById('regStatus').value;
+        
+        if (status === "ไม่สำเร็จ") {
+            // ถ้าไม่สำเร็จ ให้เปิดช่องหมายเหตุ และซ่อนรูปตัวอย่าง
+            document.getElementById('reasonDiv').style.display = "block";
+            document.getElementById('uploadDiv').style.display = "none";
+            document.getElementById('sampleBox').style.display = "none";
+            document.getElementById('uploadFile').value = ""; // เคลียร์ไฟล์ทิ้ง
+        } else if (status === "สำเร็จ") {
+            // ถ้าสำเร็จ ให้ปิดช่องหมายเหตุ และแสดงรูปตัวอย่าง
+            document.getElementById('reasonDiv').style.display = "none";
+            document.getElementById('uploadDiv').style.display = "block";
+            document.getElementById('sampleBox').style.display = "block";
+            document.getElementById('reason').value = ""; // เคลียร์หมายเหตุทิ้ง
+        } else {
+            // กรณียังไม่ได้เลือกสถานะ ให้แสดงรูปตัวอย่างไว้
+            document.getElementById('reasonDiv').style.display = "none";
+            document.getElementById('uploadDiv').style.display = "none";
+            document.getElementById('sampleBox').style.display = "block";
+        }
+    }
+
     document.getElementById('edupassForm').addEventListener('submit', function(e) {
         e.preventDefault();
+        
+        const tambon = document.getElementById('tambon').value;
+        const regStatus = document.getElementById('regStatus').value;
+        const reason = document.getElementById('reason').value;
         const fileInput = document.getElementById('uploadFile');
         const file = fileInput.files[0];
 
-        if (file) {
-            Swal.fire({
-                title: 'กำลังบันทึกข้อมูล...',
-                html: 'ระบบกำลังอัปโหลดรูปภาพและบันทึกลงฐานข้อมูล<br><b>กรุณารอสักครู่ ห้ามปิดหน้าต่างนี้</b>',
-                allowOutsideClick: false,
-                didOpen: () => { Swal.showLoading(); }
-            });
+        // ตรวจสอบเงื่อนไข: บังคับเลือกตำบล
+        if (tambon === "") {
+            Swal.fire('แจ้งเตือน', 'กรุณาเลือกศูนย์ส่งเสริมการเรียนรู้ระดับตำบล', 'warning');
+            return;
+        }
+        
+        // ตรวจสอบเงื่อนไข: บังคับเลือกสถานะการลงทะเบียน
+        if (regStatus === "") {
+             Swal.fire('แจ้งเตือน', 'กรุณาเลือกสถานะการลงทะเบียน', 'warning'); return;
+        }
 
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const payload = {
-                    action: "saveReport",
-                    name: document.getElementById('name').value,
-                    amphoe: document.getElementById('amphoe').value,
-                    tambon: document.getElementById('tambon').value, 
-                    fileData: e.target.result.split(',')[1],
-                    mimeType: file.type
-                };
+        // ตรวจสอบเงื่อนไข
+        if (regStatus === "สำเร็จ" && !file) {
+            Swal.fire('แจ้งเตือน', 'กรุณาแนบไฟล์รูปภาพภาพถ่ายหน้าจอ', 'warning'); return;
+        }
+        if (regStatus === "ไม่สำเร็จ" && reason === "") {
+            Swal.fire('แจ้งเตือน', 'กรุณาเลือกหมายเหตุที่ไม่สามารถลงทะเบียนได้', 'warning'); return;
+        }
 
-// ส่งแบบ text/plain
-                fetch(scriptURL, { 
-                    method: 'POST', 
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(payload) 
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === "success") {
-                        Swal.fire({ icon: 'success', title: 'บันทึกข้อมูลสำเร็จ!', text: 'ดำเนินการบันทึกลงฐานข้อมูลเรียบร้อยแล้ว', confirmButtonColor: '#28a745' });
-                        document.getElementById('edupassForm').reset();
-                        document.getElementById('tambon').innerHTML = '<option value="">-- กรุณาเลือกอำเภอก่อน --</option>';
-                        document.getElementById('tambon').disabled = true;
-                    } 
-                    // *** เพิ่มส่วนตรวจจับชื่อซ้ำตรงนี้ ***
-                    else if (data.status === "duplicate") {
-                        Swal.fire({ icon: 'warning', title: 'มีข้อมูลนี้แล้ว!', text: data.message, confirmButtonColor: '#f39c12' });
-                    } 
-                    else {
-                        Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาดจากเซิร์ฟเวอร์', text: data.message });
-                    }
-                })
-                .catch(error => {
-                    // หากยังติดปัญหา เน็ตเวิร์ค จะร่วงมาที่นี่ (แต่ส่วนใหญ่ส่งเข้าชีตไปแล้ว)
-                    Swal.fire({ icon: 'warning', title: 'การส่งข้อมูลเสร็จสิ้น', text: 'ส่งข้อมูลเข้าระบบแล้ว (อาจพบความล่าช้าในเครือข่าย)' });
+        Swal.fire({
+            title: 'กำลังบันทึกข้อมูล...',
+            html: 'ระบบกำลังบันทึกลงฐานข้อมูล<br><b>กรุณารอสักครู่ ห้ามปิดหน้าต่างนี้</b>',
+            allowOutsideClick: false,
+            didOpen: () => { Swal.showLoading(); }
+        });
+
+        // ฟังก์ชันสำหรับส่งข้อมูล
+        const sendData = (base64Data, mimeType) => {
+            const payload = {
+                action: "saveReport",
+                name: document.getElementById('name').value,
+                amphoe: document.getElementById('amphoe').value,
+                tambon: tambon, 
+                fileData: base64Data,
+                mimeType: mimeType,
+                reason: regStatus === "สำเร็จ" ? "" : reason
+            };
+
+            fetch(scriptURL, { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload) 
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "success") {
+                    Swal.fire({ icon: 'success', title: 'บันทึกข้อมูลสำเร็จ!', text: 'ดำเนินการบันทึกลงฐานข้อมูลเรียบร้อยแล้ว', confirmButtonColor: '#28a745' });
                     document.getElementById('edupassForm').reset();
                     document.getElementById('tambon').innerHTML = '<option value="">-- กรุณาเลือกอำเภอก่อน --</option>';
                     document.getElementById('tambon').disabled = true;
-                });
-            };
+                    toggleReason();
+                } 
+                else if (data.status === "duplicate") {
+                    Swal.fire({ icon: 'warning', title: 'มีข้อมูลนี้แล้ว!', text: data.message, confirmButtonColor: '#f39c12' });
+                } 
+                else {
+                    Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาดจากเซิร์ฟเวอร์', text: data.message });
+                }
+            })
+            .catch(error => {
+                Swal.fire({ icon: 'warning', title: 'การส่งข้อมูลเสร็จสิ้น', text: 'ส่งข้อมูลเข้าระบบแล้ว (อาจพบความล่าช้าในเครือข่าย)' });
+                document.getElementById('edupassForm').reset();
+                document.getElementById('tambon').innerHTML = '<option value="">-- กรุณาเลือกอำเภอก่อน --</option>';
+                document.getElementById('tambon').disabled = true;
+                toggleReason();
+            });
+        };
+
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) { sendData(e.target.result.split(',')[1], file.type); };
             reader.readAsDataURL(file); 
+        } else {
+            sendData("", ""); // กรณีไม่สำเร็จ จะไม่มีไฟล์
         }
     });
 </script>

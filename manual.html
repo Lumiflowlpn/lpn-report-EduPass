@@ -200,6 +200,7 @@
         .mock-btn { display: inline-block; padding: 4px 8px; border-radius: 4px; color: white; font-weight: bold; font-size: 11px; margin: 2px; }
         .mock-input { background: white; border: 1px solid #94a3b8; padding: 4px 8px; border-radius: 4px; margin-top: 4px; color: #475569; font-size: 11px; }
         .alert-rule { background: #fef2f2; border-left: 4px solid #ef4444; padding: 8px 10px; font-size: 12px; color: #991b1b; border-radius: 0 6px 6px 0; margin-top: 6px; }
+        .mock-status { background: #fff3cd; border-left: 3px solid #ffc107; padding: 6px; margin-top: 4px; font-size: 11px; color: #856404; }
 
         /* Footer */
         .footer {
@@ -393,11 +394,21 @@
                     <div class="step-num">1</div>
                     <div class="step-content">
                         <strong>การบันทึกข้อมูลผู้เรียนใหม่</strong>
-                        เข้าหน้าฟอร์มหลัก ➔ พิมพ์ชื่อ-สกุล ➔ เลือกอำเภอ ➔ เลือกตำบล ➔ แนบรูปแคปหน้าจอ EduPass
+                        พิมพ์ชื่อ-สกุล ➔ เลือกอำเภอ ➔ เลือกตำบล ➔ <b>เลือกสถานะการลงทะเบียน</b>
                         <div class="ui-mockup">
                             <div class="mock-input">ระบุ ชื่อ-นามสกุล</div>
                             <div class="mock-input">▼ เลือกอำเภอ ➔ ▼ เลือกตำบล</div>
-                            <span class="mock-btn" style="background:#007bff; display:block; text-align:center; margin-top:6px;">บันทึกข้อมูล</span>
+                            <div class="mock-input" style="font-weight:bold; color:#0284c7;">▼ เลือกลงทะเบียนสำเร็จ / ไม่สำเร็จ</div>
+                            
+                            <!-- เพิ่มส่วนแสดงผลตามการเลือกสถานะ -->
+                            <div class="mock-status">
+                                <b>กรณีกด "ไม่สำเร็จ":</b> ต้องระบุหมายเหตุ (ไม่มีสัญชาติไทย/ไม่มีมือถือ/อยู่ในเรือนจำ)
+                            </div>
+                            <div class="mock-status" style="background:#e0f2fe; border-color:#0284c7; color:#0369a1;">
+                                <b>กรณีกด "สำเร็จ":</b> ต้องแนบภาพหน้าจอ EduPass
+                            </div>
+                            
+                            <span class="mock-btn" style="background:#007bff; display:block; text-align:center; margin-top:8px;">บันทึกข้อมูล</span>
                         </div>
                         <div class="alert-rule">
                             🚫 <b>ป้องกันข้อมูลซ้ำ:</b> หากชื่อ-สกุลซ้ำกับที่มีในระบบแล้ว จะไม่สามารถบันทึกซ้ำได้

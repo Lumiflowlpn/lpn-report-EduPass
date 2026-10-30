@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>สรุปผลการลงทะเบียนการเข้าใช้งานแอปพลิเคชัน EduPass ของผู้เรียน สกร.ลำพูน Edu Pass</title>
+    <title>สรุปผลการลงทะเบียนการเข้าใช้งานแอปพลิเคชัน EduPass ของผู้เรียน สกร.ลำพูน</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
@@ -48,7 +48,7 @@
     <div class="header">
         <h2 style="margin:0;">สรุปผลการลงทะเบียนการเข้าใช้งานแอปพลิเคชัน EduPass<br>ของผู้เรียน สกร.ลำพูน</h2>
         <div style="display:flex; gap:10px;">
-            <a href="index.html" class="btn-add" id="btnAddData">➕ เพิ่มข้อมูลผู้เรียน</a>
+            <a href="index.html" class="btn-add" id="btnAddData" target="_blank">➕ เพิ่มข้อมูลผู้เรียน</a>
             <button class="btn-logout" onclick="logout()">ออกจากระบบ</button>
         </div>
     </div>
@@ -111,16 +111,17 @@
             <table>
                 <thead>
                     <tr>
-                        <th width="15%">วัน/เวลา</th>
-                        <th width="15%">อำเภอ</th>
-                        <th width="15%">ตำบล</th>
-                        <th width="25%">ชื่อ-นามสกุล</th>
-                        <th width="15%">หลักฐาน</th>
-                        <th width="15%" id="manageHeader">สถานะ</th>
+                        <th width="12%">วัน/เวลา</th>
+                        <th width="10%">อำเภอ</th>
+                        <th width="12%">ตำบล</th>
+                        <th width="20%">ชื่อ-นามสกุล</th>
+                        <th width="18%">หมายเหตุ</th>
+                        <th width="10%">หลักฐาน</th>
+                        <th width="18%" id="manageHeader">สถานะ</th>
                     </tr>
                 </thead>
                 <tbody id="individualTable">
-                    <tr><td colspan="6" style="text-align:center;">กำลังโหลดข้อมูล...</td></tr>
+                    <tr><td colspan="7" style="text-align:center;">กำลังโหลดข้อมูล...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -129,7 +130,7 @@
 
 <script>
     // *** นำ Web App URL อันใหม่ของคุณมาใส่ตรงนี้ ***
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbzpovLdt5jk5TOKcePko5N6anncr3g2CSclB69RgA_xKgkWQjuRs6HqdwWvKi35veC0Zw/exec'; 
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbzz5Z2cIVThEYu3DwG868kdjL3VSWSobn6QsQbjwlIALwD_O48XmEOx_LKxzpHzNQTOuw/exec'; 
 
     let allReports = [], allTargets = [], amphoeTargets = {};
     let currentFilteredReports = []; 
@@ -162,8 +163,11 @@
             let prefix = userRole === "อำเภอ" ? "สกร.ระดับอำเภอ" : "ศกร.ระดับตำบล";
             document.getElementById('areaLabel').innerText = prefix + userArea;
             
+            // ปรับให้อำเภอสามารถ เพิ่ม/แก้ไข/ลบ ได้ด้วย
             if(userRole === "อำเภอ") {
                 document.getElementById('btnOpenSetup').style.display = "inline-block";
+                document.getElementById('btnAddData').style.display = "inline-block";
+                document.getElementById('manageHeader').innerText = "จัดการ";
             }
             if(userRole === "ตำบล") {
                 document.getElementById('btnAddData').style.display = "inline-block";
@@ -211,6 +215,23 @@
         let progressHTML = '';
         document.getElementById('progressHeaderCol').innerText = (displayMode === "AMPHOE") ? "อำเภอ" : "ตำบล";
 
+        // === นับยอดตามสาเหตุหมายเหตุ ===
+        let r_noThai = 0, r_noPhone = 0, r_prison = 0, r_success = 0;
+        rep.forEach(r => {
+            if (r.reason === "ไม่มีสัญชาติไทย") r_noThai++;
+            else if (r.reason === "ไม่มีโทรศัพท์มือถือ") r_noPhone++;
+            else if (r.reason === "อยู่ในเรือนจำ/สถานพินิจ") r_prison++;
+            else r_success++;
+        });
+
+        let reasonSummaryHTML = `<div style="margin-top:15px; font-size:16px; background:#fff; color:#333; padding:15px; border-radius:8px; box-shadow:0 2px 4px rgba(0,0,0,0.1);">
+            <b>สถิติการลงทะเบียน:</b> สำเร็จ <span style="color:#28a745; font-weight:bold; font-size:18px;">${r_success}</span> คน<br>
+            <b style="color:#d35400;">ไม่สามารถลงทะเบียนได้:</b> 
+            ไม่มีสัญชาติไทย <span style="color:#d35400; font-weight:bold;">${r_noThai}</span> คน | 
+            ไม่มีมือถือ <span style="color:#d35400; font-weight:bold;">${r_noPhone}</span> คน | 
+            เรือนจำ/สถานพินิจ <span style="color:#d35400; font-weight:bold;">${r_prison}</span> คน
+        </div>`;
+
         // ประมวลผลตารางด้านบน (ความคืบหน้า)
         if (displayMode === "AMPHOE") {
             let ampStats = {};
@@ -222,7 +243,7 @@
                 let status = d.actual >= d.target && d.target > 0 ? "✅ ครบถ้วน" : "⏳ กำลังดำเนินการ";
                 progressHTML += `<tr><td>อำเภอ${a}</td><td style="text-align:center;">${d.target}</td><td style="text-align:center; font-weight:bold;">${d.actual}</td><td style="text-align:center;">${p}%</td><td>${status}</td></tr>`;
             }
-            document.getElementById('summaryBox').innerHTML = `ภาพรวมจังหวัดลำพูน ยอดรวมเป้าหมายทั้งสิ้น <span class="highlight">${totalTarget}</span> คน<br>รายงานแล้ว <span class="highlight">${totalActual}</span> คน คิดเป็นร้อยละ <span class="highlight">${totalTarget>0 ? ((totalActual/totalTarget)*100).toFixed(2) : 0}%</span>`;
+            document.getElementById('summaryBox').innerHTML = `ภาพรวมจังหวัดลำพูน ยอดรวมเป้าหมายทั้งสิ้น <span class="highlight">${totalTarget}</span> คน<br>รายงานแล้ว <span class="highlight">${totalActual}</span> คน คิดเป็นร้อยละ <span class="highlight">${totalTarget>0 ? ((totalActual/totalTarget)*100).toFixed(2) : 0}%</span>` + reasonSummaryHTML;
         } else if (displayMode === "TAMBON") {
             let tbStats = {};
             tambonData[filterAmphoe].forEach(t => tbStats[t] = {target: 0, actual: 0});
@@ -236,38 +257,43 @@
                 progressHTML += `<tr><td>ตำบล${t}</td><td style="text-align:center;">${d.target}</td><td style="text-align:center; font-weight:bold;">${d.actual}</td><td style="text-align:center;">${p}%</td><td>${status}</td></tr>`;
             }
             let pct = totalTarget>0 ? ((totalActual/totalTarget)*100).toFixed(2) : 0;
-            document.getElementById('summaryBox').innerHTML = `อำเภอ${filterAmphoe} ยอดรวมเป้าหมายทั้งสิ้น <span class="highlight">${totalTarget}</span> คน<br>รายงานแล้ว <span class="highlight">${totalActual}</span> คน คิดเป็นร้อยละ <span class="highlight">${pct}%</span>`;
+            document.getElementById('summaryBox').innerHTML = `อำเภอ${filterAmphoe} ยอดรวมเป้าหมายทั้งสิ้น <span class="highlight">${totalTarget}</span> คน<br>รายงานแล้ว <span class="highlight">${totalActual}</span> คน คิดเป็นร้อยละ <span class="highlight">${pct}%</span>` + reasonSummaryHTML;
         } else if (displayMode === "SINGLE_TAMBON") {
             let myTarget = tgt.find(t => t.tambon === userArea);
             totalTarget = myTarget ? (parseInt(myTarget.target) || 0) : 0;
             totalActual = rep.length;
             let pct = totalTarget > 0 ? ((totalActual/totalTarget)*100).toFixed(2) : 0;
             progressHTML = `<tr><td>ตำบล${userArea}</td><td style="text-align:center;">${totalTarget}</td><td style="text-align:center; font-weight:bold;">${totalActual}</td><td style="text-align:center;">${pct}%</td><td>${totalActual >= totalTarget && totalTarget > 0 ? "✅ ครบถ้วน" : "⏳ กำลังดำเนินการ"}</td></tr>`;
-            document.getElementById('summaryBox').innerHTML = `ตำบล${userArea} ยอดรวมเป้าหมายทั้งสิ้น <span class="highlight">${totalTarget}</span> คน<br>รายงานแล้ว <span class="highlight">${totalActual}</span> คน คิดเป็นร้อยละ <span class="highlight">${pct}%</span>`;
+            document.getElementById('summaryBox').innerHTML = `ตำบล${userArea} ยอดรวมเป้าหมายทั้งสิ้น <span class="highlight">${totalTarget}</span> คน<br>รายงานแล้ว <span class="highlight">${totalActual}</span> คน คิดเป็นร้อยละ <span class="highlight">${pct}%</span>` + reasonSummaryHTML;
         }
         document.getElementById('progressTable').innerHTML = progressHTML;
 
         // --- ประมวลผลตารางรายชื่อบุคคล ---
         let individualHTML = '';
         if (rep.length === 0) {
-            individualHTML = '<tr><td colspan="6" style="text-align:center;">ยังไม่มีผู้รายงาน</td></tr>';
+            individualHTML = '<tr><td colspan="7" style="text-align:center;">ยังไม่มีผู้รายงาน</td></tr>';
         } else {
             rep.forEach(row => {
-                // หากเป็นแอดมินตำบล ให้แสดงปุ่มแก้ไข/ลบ
+                // ให้ทั้งตำบลและอำเภอ สามารถแก้ไข/ลบ ได้
                 let manageCol = '<span style="color:green;">บันทึกแล้ว</span>';
-                if (userRole === "ตำบล") {
+                if (userRole === "ตำบล" || userRole === "อำเภอ") {
                     manageCol = `
                         <button class="btn-edit" onclick="editRow(${row.rowId}, '${row.name}')">แก้ไขชื่อ</button>
                         <button class="btn-del" onclick="deleteRow(${row.rowId})">ลบข้อมูล</button>
                     `;
                 }
 
+                // แสดงข้อความหมายเหตุ หรือ ลิงก์รูปภาพ
+                let reasonText = row.reason ? `<span style="color:#d35400; font-weight:bold;">${row.reason}</span>` : `<span style="color:green;">ลงทะเบียนสำเร็จ</span>`;
+                let evidenceLink = row.imageUrl ? `<a href="${row.imageUrl}" target="_blank" style="color:#007bff; font-weight:bold;">ดูรูป</a>` : `<span style="color:#999;">ไม่มีรูป</span>`;
+
                 individualHTML += `<tr>
                     <td>${row.timestamp}</td>
                     <td>${row.amphoe}</td>
                     <td>${row.tambon}</td>
                     <td>${row.name}</td>
-                    <td style="text-align:center;"><a href="${row.imageUrl}" target="_blank" style="color:#007bff; font-weight:bold;">ดูรูป</a></td>
+                    <td>${reasonText}</td>
+                    <td style="text-align:center;">${evidenceLink}</td>
                     <td style="text-align:center; vertical-align: middle;">${manageCol}</td>
                 </tr>`;
             });
@@ -275,7 +301,7 @@
         document.getElementById('individualTable').innerHTML = individualHTML;
     }
 
-    // --- ฟังก์ชันแก้ไขชื่อ (สำหรับแอดมินตำบล) ---
+    // --- ฟังก์ชันแก้ไขชื่อ ---
     function editRow(rowId, oldName) {
         Swal.fire({
             title: 'แก้ไขชื่อผู้เรียน',
@@ -297,7 +323,7 @@
         });
     }
 
-    // --- ฟังก์ชันลบข้อมูล (สำหรับแอดมินตำบล) ---
+    // --- ฟังก์ชันลบข้อมูล ---
     function deleteRow(rowId) {
         Swal.fire({
             title: 'ยืนยันการลบข้อมูล?',
@@ -321,10 +347,11 @@
         });
     }
 
-    // --- ฟังก์ชันดาวน์โหลด Excel (ลงเครื่อง) ---
+    // --- ฟังก์ชันดาวน์โหลด Excel ---
     function exportToExcel() {
         if (currentFilteredReports.length === 0) return Swal.fire('ไม่พบข้อมูล', '', 'info');
-        let exportData = currentFilteredReports.map(r => ({"วัน/เวลา": r.timestamp, "อำเภอ": r.amphoe, "ตำบล": r.tambon, "ชื่อ-นามสกุล": r.name, "ไฟล์หลักฐาน": r.imageUrl}));
+        // เพิ่มฟิลด์หมายเหตุในการส่งออก
+        let exportData = currentFilteredReports.map(r => ({"วัน/เวลา": r.timestamp, "อำเภอ": r.amphoe, "ตำบล": r.tambon, "ชื่อ-นามสกุล": r.name, "สถานะ/หมายเหตุ": r.reason || "ลงทะเบียนสำเร็จ", "ไฟล์หลักฐาน": r.imageUrl}));
         let ws = XLSX.utils.json_to_sheet(exportData);
         let wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "รายชื่อผู้ลงทะเบียน");
