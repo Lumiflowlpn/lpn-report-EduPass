@@ -160,7 +160,16 @@
             document.getElementById('amphoeSelect').style.display = "inline-block";
         } else {
             document.getElementById('areaLabel').style.display = "inline-block";
-            let prefix = userRole === "อำเภอ" ? "สกร.ระดับอำเภอ" : "ศกร.ระดับตำบล";
+            
+            // เช็คเงื่อนไขกำหนดคำนำหน้า
+            let prefix = "";
+            if (userRole === "อำเภอ") {
+                prefix = "สกร.ระดับอำเภอ";
+            } else if (userRole === "ตำบล") {
+                // ถ้าเป็นเรือนจำ/สถานพินิจ ไม่ต้องใส่ ศกร.ระดับตำบล
+                prefix = (userArea === "เรือนจำ/สถานพินิจ") ? "" : "ศกร.ระดับตำบล";
+            }
+            
             document.getElementById('areaLabel').innerText = prefix + userArea;
             
             // ปรับให้อำเภอสามารถ เพิ่ม/แก้ไข/ลบ ได้ด้วย
@@ -254,7 +263,7 @@
                 let d = tbStats[t]; totalActual += d.actual;
                 let p = d.target > 0 ? ((d.actual/d.target)*100).toFixed(2) : 0;
                 let status = d.actual >= d.target && d.target > 0 ? "✅ ครบถ้วน" : "⏳ กำลังดำเนินการ";
-                progressHTML += `<tr><td>ตำบล${t}</td><td style="text-align:center;">${d.target}</td><td style="text-align:center; font-weight:bold;">${d.actual}</td><td style="text-align:center;">${p}%</td><td>${status}</td></tr>`;
+                progressHTML += `<tr><td>${t}</td><td style="text-align:center;">${d.target}</td><td style="text-align:center; font-weight:bold;">${d.actual}</td><td style="text-align:center;">${p}%</td><td>${status}</td></tr>`;
             }
             let pct = totalTarget>0 ? ((totalActual/totalTarget)*100).toFixed(2) : 0;
             document.getElementById('summaryBox').innerHTML = `อำเภอ${filterAmphoe} ยอดรวมเป้าหมายทั้งสิ้น <span class="highlight">${totalTarget}</span> คน<br>รายงานแล้ว <span class="highlight">${totalActual}</span> คน คิดเป็นร้อยละ <span class="highlight">${pct}%</span>` + reasonSummaryHTML;
@@ -263,7 +272,7 @@
             totalTarget = myTarget ? (parseInt(myTarget.target) || 0) : 0;
             totalActual = rep.length;
             let pct = totalTarget > 0 ? ((totalActual/totalTarget)*100).toFixed(2) : 0;
-            progressHTML = `<tr><td>ตำบล${userArea}</td><td style="text-align:center;">${totalTarget}</td><td style="text-align:center; font-weight:bold;">${totalActual}</td><td style="text-align:center;">${pct}%</td><td>${totalActual >= totalTarget && totalTarget > 0 ? "✅ ครบถ้วน" : "⏳ กำลังดำเนินการ"}</td></tr>`;
+            progressHTML = `<tr><td>${userArea}</td><td style="text-align:center;">${totalTarget}</td><td style="text-align:center; font-weight:bold;">${totalActual}</td><td style="text-align:center;">${pct}%</td><td>${totalActual >= totalTarget && totalTarget > 0 ? "✅ ครบถ้วน" : "⏳ กำลังดำเนินการ"}</td></tr>`;
             document.getElementById('summaryBox').innerHTML = `ตำบล${userArea} ยอดรวมเป้าหมายทั้งสิ้น <span class="highlight">${totalTarget}</span> คน<br>รายงานแล้ว <span class="highlight">${totalActual}</span> คน คิดเป็นร้อยละ <span class="highlight">${pct}%</span>` + reasonSummaryHTML;
         }
         document.getElementById('progressTable').innerHTML = progressHTML;
@@ -391,7 +400,7 @@
             const inputsDiv = document.getElementById('targetInputs'); inputsDiv.innerHTML = '';
             tambonData[userArea].forEach(tb => {
                 let old = allTargets.find(t => t.amphoe === userArea && t.tambon === tb);
-                inputsDiv.innerHTML += `<div class="target-item"><label>ต.${tb}</label><input type="number" id="tgt_${tb}" class="tgt-input" value="${old ? old.target : 0}" min="0" oninput="calculateSetupSum()"></div>`;
+                inputsDiv.innerHTML += `<div class="target-item"><label>${tb}</label><input type="number" id="tgt_${tb}" class="tgt-input" value="${old ? old.target : 0}" min="0" oninput="calculateSetupSum()"></div>`;
             });
             box.style.display = "block"; calculateSetupSum();
         }
