@@ -392,7 +392,7 @@
         if (isProvince) {
             let ampStats = {};
             Object.keys(tambonData).forEach(a => ampStats[a] = { target: parseInt(amphoeTargets[a]) || 0, actual: 0 });
-            rep.forEach(r => { if(ampStats[r.amphoe] && !r.reason) ampStats[r.amphoe].actual++; });
+            rep.forEach(r => { if(ampStats[r.amphoe]) ampStats[r.amphoe].actual++; });
 
             for(let a in ampStats) {
                 let d = ampStats[a];
@@ -418,7 +418,7 @@
             let tbStats = {};
             tambonData[filterAmphoe].forEach(t => tbStats[t] = { target: 0, actual: 0 });
             tgt.forEach(t => { if(tbStats[t.tambon]) tbStats[t.tambon].target = parseInt(t.target) || 0; });
-            rep.forEach(r => { if(tbStats[r.tambon] && !r.reason) tbStats[r.tambon].actual++; });
+            rep.forEach(r => { if(tbStats[r.tambon]) tbStats[r.tambon].actual++; });
             totalTarget = parseInt(amphoeTargets[filterAmphoe]) || 0; 
 
             for(let t in tbStats) {
@@ -485,7 +485,7 @@
                 labels: labels,
                 datasets: [
                     { label: 'เป้าหมายที่ตั้งไว้', data: targetData, backgroundColor: '#cbd5e1', borderRadius: 6 },
-                    { label: 'ทำได้จริง', data: actualData, backgroundColor: '#3b82f6', borderRadius: 6 }
+                    { label: 'รายงานแล้ว(คน)', data: actualData, backgroundColor: '#3b82f6', borderRadius: 6 }
                 ]
             },
             options: {
