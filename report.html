@@ -427,7 +427,7 @@
                 let pctStr = pct > 100 ? 100 : pct;
                 
                 tableHTML += `<tr>
-                    <td>ต.${t}</td>
+                    <td>${t}</td>
                     <td style="color:var(--gray);">${d.target.toLocaleString()}</td>
                     <td style="color:var(--success); font-weight:700;">${d.actual.toLocaleString()}</td>
                     <td>
@@ -436,7 +436,7 @@
                     </td>
                 </tr>`;
                 
-                labels.push('ต.'+t);
+                labels.push(t);
                 dataTarget.push(d.target);
                 dataActual.push(d.actual);
             }
