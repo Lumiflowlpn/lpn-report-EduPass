@@ -4,12 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>รายงานสรุปผล EduPass - สกร.ลำพูน</title>
-    <!-- โหลดไลบรารีที่จำเป็น -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- เพิ่มไลบรารีสำหรับแปลง HTML เป็นรูปภาพ -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -25,140 +22,139 @@
         body { font-family: 'Sarabun', sans-serif; background-color: #f1f5f9; margin: 0; padding: 0; color: var(--dark); }
         .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
         
-        /* Filter Bar (ย้ายออกมาด้านบน) */
-        .filter-bar { background: white; padding: 15px 25px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 15px; margin: 20px auto; max-width: 1160px; border: 1px solid #e2e8f0; }
+        .filter-bar { background: white; padding: 15px 25px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 15px; margin: 20px auto; max-width: 1160px; border: 1px solid #e2e8f0; }
+        .filter-group { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
         .filter-bar select { padding: 10px 15px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: 'Sarabun', sans-serif; font-size: 15px; outline: none; background: #f8fafc; color: var(--dark); font-weight: 600; cursor: pointer; transition: 0.2s;}
-        .filter-bar select:hover { border-color: var(--secondary); }
         
-        .btn-print { background: var(--success); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-family: 'Sarabun', sans-serif; font-size: 15px; transition: 0.3s; }
-        .btn-print:hover { background: #047857; transform: translateY(-2px); }
-        
-        .btn-check { background: var(--secondary); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-family: 'Sarabun', sans-serif; font-size: 15px; transition: 0.3s; }
-        .btn-check:hover { background: #1d4ed8; transform: translateY(-2px); }
+        .btn-action { color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; font-family: 'Sarabun', sans-serif; font-size: 14.5px; transition: 0.3s; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-print { background: var(--success); }
+        .btn-print:hover { background: #047857; }
+        .btn-check { background: var(--secondary); }
+        .btn-check:hover { background: #1d4ed8; }
+        .btn-image { background: #8b5cf6; }
+        .btn-image:hover { background: #7c3aed; }
+        .btn-nav-home { background: #0284c7; }
+        .btn-nav-home:hover { background: #0369a1; }
+        .btn-nav-admin { background: #334155; }
+        .btn-nav-admin:hover { background: #1e293b; }
 
-        .btn-image { background: #8b5cf6; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-family: 'Sarabun', sans-serif; font-size: 15px; transition: 0.3s; }
-        .btn-image:hover { background: #7c3aed; transform: translateY(-2px); }
-
-        /* ส่วนที่จับภาพเป็นรูป (Capture Area) */
         #captureArea { background-color: #f1f5f9; padding-bottom: 20px; }
 
-        /* Hero Header */
         .hero { background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); color: white; padding: 40px 20px; text-align: center; border-radius: 0 0 24px 24px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); margin-bottom: 30px; }
-        .hero h1 { margin: 0; font-size: 32px; font-weight: 800; letter-spacing: 0.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-        .hero p { margin: 10px 0 0; font-size: 18px; opacity: 0.9; }
+        .hero h1 { margin: 0; font-size: 30px; font-weight: 800; letter-spacing: 0.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         .hero-area { font-size: 22px; font-weight: 700; color: #facc15; margin-top: 10px; display: block; text-shadow: 0 1px 3px rgba(0,0,0,0.3); }
-        
-        /* Date Info Badge */
-        .hero-info { margin-top: 20px; font-size: 15px; background: rgba(255, 255, 255, 0.2); display: inline-block; padding: 8px 20px; border-radius: 30px; font-weight: 600; letter-spacing: 0.5px; border: 1px solid rgba(255, 255, 255, 0.3); backdrop-filter: blur(5px); }
+        .hero-info { margin-top: 20px; font-size: 15px; background: rgba(255, 255, 255, 0.2); display: inline-block; padding: 8px 20px; border-radius: 30px; font-weight: 600; border: 1px solid rgba(255, 255, 255, 0.3); backdrop-filter: blur(5px); }
         .hero-info span { color: #facc15; font-weight: 700; }
 
-        /* Dashboard Grid */
         .dashboard-grid { display: grid; gap: 20px; }
         
-        /* Top Summary Cards */
-        .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
-        .kpi-card { background: white; padding: 25px 20px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); text-align: center; border: 1px solid #e2e8f0; position: relative; overflow: hidden; }
+        .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px; }
+        .kpi-card { background: white; padding: 22px 16px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); text-align: center; border: 1px solid #e2e8f0; position: relative; overflow: hidden; }
         .kpi-card::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 6px; }
         .kpi-card.target::before { background: var(--secondary); }
+        .kpi-card.reported::before { background: #8b5cf6; }
         .kpi-card.success::before { background: var(--success); }
         .kpi-card.percent::before { background: var(--warning); }
         .kpi-card.failed::before { background: var(--danger); }
         
-        .kpi-card .icon { font-size: 36px; margin-bottom: 10px; display: block; }
-        .kpi-card h3 { margin: 0; font-size: 16px; color: var(--gray); font-weight: 600; text-transform: uppercase; }
-        .kpi-card .value { margin: 10px 0 0; font-size: 42px; font-weight: 800; line-height: 1; }
+        .kpi-card .icon { font-size: 32px; margin-bottom: 8px; display: block; }
+        .kpi-card h3 { margin: 0; font-size: 15px; color: var(--gray); font-weight: 700; }
+        .kpi-card .value { margin: 10px 0 4px; font-size: 38px; font-weight: 800; line-height: 1; }
         .kpi-card.target .value { color: var(--secondary); }
+        .kpi-card.reported .value { color: #7c3aed; }
         .kpi-card.success .value { color: var(--success); }
         .kpi-card.percent .value { color: var(--warning); }
         .kpi-card.failed .value { color: var(--danger); }
-        .kpi-card .unit { font-size: 16px; font-weight: 600; color: var(--gray); }
+        .kpi-card .unit { font-size: 14px; font-weight: 600; color: var(--gray); }
 
-        /* Reason Breakdown */
-        .reason-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 10px;}
-        .reason-card { background: #fff5f5; border: 1px solid #fecaca; padding: 20px; border-radius: 16px; display: flex; align-items: center; justify-content: space-between; }
-        .reason-card .info h4 { margin: 0; color: #991b1b; font-size: 16px; font-weight: 600; }
-        .reason-card .info p { margin: 5px 0 0; color: #7f1d1d; font-size: 13px; }
-        .reason-card .count { font-size: 32px; font-weight: 800; color: var(--danger); background: white; padding: 5px 20px; border-radius: 12px; box-shadow: 0 2px 4px rgba(239,68,68,0.1); }
+        .reason-section { background: white; padding: 22px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0; margin-top: 5px; }
+        .reason-section h3 { margin: 0 0 15px 0; font-size: 17px; color: #991b1b; display: flex; align-items: center; gap: 8px; }
+        .reason-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+        .reason-card { background: #fff5f5; border: 1px solid #fecaca; padding: 14px 18px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .reason-card .info h4 { margin: 0; color: #991b1b; font-size: 14.5px; font-weight: 700; line-height: 1.3; }
+        .reason-card .info p { margin: 3px 0 0; color: #7f1d1d; font-size: 12px; }
+        .reason-card .count { font-size: 24px; font-weight: 800; color: var(--danger); background: white; padding: 4px 14px; border-radius: 10px; box-shadow: 0 2px 4px rgba(239,68,68,0.1); min-width: 36px; text-align: center; }
 
-        /* Charts Row */
-        .chart-row { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-top: 10px; }
+        .chart-row { display: grid; grid-template-columns: 1.8fr 1.2fr; gap: 20px; margin-top: 5px; }
         @media (max-width: 900px) { .chart-row { grid-template-columns: 1fr; } }
         .chart-container { background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0; display: flex; flex-direction: column;}
         .chart-container h3 { margin: 0 0 20px 0; font-size: 18px; color: var(--dark); text-align: center; }
-        
-        .chart-wrapper { position: relative; height: 280px; width: 100%; margin: 0 auto; flex-grow: 1; }
-        .chart-wrapper.donut { height: 260px; max-width: 350px; }
+        .chart-wrapper { position: relative; height: 300px; width: 100%; margin: 0 auto; flex-grow: 1; }
+        .chart-wrapper.donut { height: 280px; max-width: 420px; }
 
-        /* Aggregate Table */
-        .table-container { background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0; margin-top: 10px; overflow-x: auto; }
+        .table-container { background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0; margin-top: 5px; overflow-x: auto; }
         .table-container h3 { margin: 0 0 20px 0; font-size: 18px; color: var(--dark); }
-        table { width: 100%; border-collapse: collapse; min-width: 600px; }
-        th, td { padding: 15px; text-align: center; border-bottom: 1px solid #f1f5f9; font-size: 16px; }
-        th { background-color: var(--light); color: var(--gray); font-weight: 700; text-transform: uppercase; font-size: 14px; letter-spacing: 0.5px;}
+        table { width: 100%; border-collapse: collapse; min-width: 650px; }
+        th, td { padding: 14px 15px; text-align: center; border-bottom: 1px solid #f1f5f9; font-size: 15.5px; }
+        th { background-color: var(--light); color: var(--gray); font-weight: 700; font-size: 14px; }
         tr:hover { background-color: #f8fafc; }
-        td:first-child { text-align: left; font-weight: 600; color: var(--dark); }
-        .progress-bar-bg { background: #e2e8f0; border-radius: 20px; height: 8px; width: 100%; overflow: hidden; margin-top: 8px;}
-        .progress-bar-fill { background: var(--success); height: 100%; border-radius: 20px; transition: width 1s ease-in-out; }
+        td:first-child { text-align: left; font-weight: 700; color: var(--dark); }
+        .progress-bar-bg { background: #e2e8f0; border-radius: 20px; height: 8px; width: 100%; overflow: hidden; margin-top: 6px;}
+        .progress-bar-fill { background: var(--success); height: 100%; border-radius: 20px; transition: width 0.8s ease-in-out; }
 
-        /* Footer */
-        .footer { text-align: center; padding: 30px; color: var(--gray); font-size: 14px; margin-top: 20px; }
+        .footer { text-align: center; padding: 25px; color: var(--gray); font-size: 14px; margin-top: 10px; }
 
-        /* Print Media Query */
         @media print {
             body { background: white; }
             #captureArea { background: white; }
             .hero { box-shadow: none; border-radius: 0; padding: 20px; margin-bottom: 20px;}
-            .filter-bar, .footer { display: none; }
-            .kpi-card, .reason-card, .chart-container, .table-container { box-shadow: none; border: 1px solid #ddd; break-inside: avoid; }
-            .chart-row { grid-template-columns: 1fr 1fr; }
-            .chart-wrapper { height: 250px; } 
+            .filter-bar { display: none !important; }
+            .kpi-card, .reason-section, .chart-container, .table-container { box-shadow: none; border: 1px solid #ddd; break-inside: avoid; }
+            .chart-row { grid-template-columns: 1.5fr 1fr; }
+            .chart-wrapper { height: 240px; } 
         }
     </style>
 </head>
 <body>
 
-    <!-- แผงควบคุมด้านบนสุด (จะไม่ถูกถ่ายติดไปในรูปภาพ) -->
     <div class="filter-bar">
-        <b>เลือกพื้นที่:</b>
-        <select id="amphoeSelect" onchange="renderData()">
-            <option value="ทั้งหมด">🌍 ภาพรวมทั้งจังหวัด (ทุกอำเภอ)</option>
-            <option value="เมืองลำพูน">📍 อำเภอเมืองลำพูน</option>
-            <option value="แม่ทา">📍 อำเภอแม่ทา</option>
-            <option value="บ้านโฮ่ง">📍 อำเภอบ้านโฮ่ง</option>
-            <option value="ลี้">📍 อำเภอลี้</option>
-            <option value="ทุ่งหัวช้าง">📍 อำเภอทุ่งหัวช้าง</option>
-            <option value="ป่าซาง">📍 อำเภอป่าซาง</option>
-            <option value="บ้านธิ">📍 อำเภอบ้านธิ</option>
-            <option value="เวียงหนองล่อง">📍 อำเภอเวียงหนองล่อง</option>
-        </select>
+        <div class="filter-group">
+            <a href="index.html" class="btn-action btn-nav-home">🏠 หน้าลงทะเบียน</a>
+            <b>เลือกพื้นที่:</b>
+            <select id="amphoeSelect" onchange="renderData()">
+                <option value="ทั้งหมด">🌍 ภาพรวมทั้งจังหวัด (ทุกอำเภอ)</option>
+                <option value="เมืองลำพูน">📍 อำเภอเมืองลำพูน</option>
+                <option value="แม่ทา">📍 อำเภอแม่ทา</option>
+                <option value="บ้านโฮ่ง">📍 อำเภอบ้านโฮ่ง</option>
+                <option value="ลี้">📍 อำเภอลี้</option>
+                <option value="ทุ่งหัวช้าง">📍 อำเภอทุ่งหัวช้าง</option>
+                <option value="ป่าซาง">📍 อำเภอป่าซาง</option>
+                <option value="บ้านธิ">📍 อำเภอบ้านธิ</option>
+                <option value="เวียงหนองล่อง">📍 อำเภอเวียงหนองล่อง</option>
+            </select>
+        </div>
         
-        <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
-            <button class="btn-check" onclick="checkAllocationStatus()">🔍 เช็คสถานะเป้าหมาย</button>
-            <button class="btn-print" onclick="window.print()">🖨️ บันทึก PDF</button>
-            <button class="btn-image" onclick="downloadAsImage()">📸 ดาวน์โหลดเป็นรูปภาพ</button>
+        <div class="filter-group">
+            <button class="btn-action btn-check" onclick="checkAllocationStatus()">🔍 เช็คสถานะเป้าหมาย</button>
+            <button class="btn-action btn-print" onclick="window.print()">🖨️ บันทึก PDF</button>
+            <button class="btn-action btn-image" onclick="downloadAsImage()">📸 ดาวน์โหลดรูปภาพ</button>
+            <a href="login.html?form=admin" class="btn-action btn-nav-admin" id="adminShortcutBtn">🔒 สำหรับแอดมิน</a>
         </div>
     </div>
 
-    <!-- ส่วนที่ต้องการจับภาพเป็นรูปภาพ เริ่มตรงนี้ -->
     <div id="captureArea">
-        <!-- Hero Section -->
         <div class="hero">
             <h1>รายงานผลการลงทะเบียนการเข้าใช้งานแอปพลิเคชัน EduPass ของผู้เรียน</h1>
             <span class="hero-area" id="displayAreaName">สำนักงานส่งเสริมการเรียนรู้ประจำจังหวัดลำพูน</span>
             <div class="hero-info">
-                📅 ข้อมูล ณ วันที่: <span id="currentDateDisplay">...</span> &nbsp;|&nbsp; ⏳ กำหนดสิ้นสุดรายงาน: <span>30 พฤศจิกายน 2569</span>
+                📅 ข้อมูล ณ วันที่: <span id="currentDateDisplay">...</span> &nbsp;|&nbsp; 🛡️ ข้อมูลสถิติภาพรวม (PDPA Compliant)
             </div>
         </div>
 
         <div class="container">
             <div class="dashboard-grid">
                 
-                <!-- Main KPI Row -->
                 <div class="kpi-row">
                     <div class="kpi-card target">
                         <span class="icon">🎯</span>
-                        <h3>เป้าหมายผู้เรียนทั้งหมด</h3>
+                        <h3>เป้าหมายทั้งหมด</h3>
                         <div class="value" id="valTarget">0</div>
+                        <span class="unit">คน</span>
+                    </div>
+                    <div class="kpi-card reported">
+                        <span class="icon">📝</span>
+                        <h3>รายงานผลแล้วรวม</h3>
+                        <div class="value" id="valReported">0</div>
                         <span class="unit">คน</span>
                     </div>
                     <div class="kpi-card success">
@@ -167,75 +163,55 @@
                         <div class="value" id="valSuccess">0</div>
                         <span class="unit">คน</span>
                     </div>
-                    <div class="kpi-card percent">
-                        <span class="icon">📈</span>
-                        <h3>ร้อยละความก้าวหน้า</h3>
-                        <div class="value" id="valPercent">0.00</div>
-                        <span class="unit">%</span>
-                    </div>
                     <div class="kpi-card failed">
                         <span class="icon">⚠️</span>
                         <h3>ไม่สามารถลงทะเบียนได้</h3>
                         <div class="value" id="valFailed">0</div>
                         <span class="unit">คน</span>
                     </div>
-                </div>
-
-                <!-- Failed Reasons Breakdown -->
-                <div class="reason-row">
-                    <div class="reason-card">
-                        <div class="info">
-                            <h4>🌍 ไม่มีสัญชาติไทย</h4>
-                            <p>ผู้เรียนที่ไม่มีบัตร ปชช. / สัญชาติไทย</p>
-                        </div>
-                        <div class="count" id="valReason1">0</div>
-                    </div>
-                    <div class="reason-card">
-                        <div class="info">
-                            <h4>📱 ไม่มีโทรศัพท์มือถือ</h4>
-                            <p>ผู้เรียนที่ไม่มีสมาร์ทโฟนสำหรับใช้งาน</p>
-                        </div>
-                        <div class="count" id="valReason2">0</div>
-                    </div>
-                    <div class="reason-card">
-                        <div class="info">
-                            <h4>🏛️ อยู่ในเรือนจำ/สถานพินิจ</h4>
-                            <p>ผู้เรียนที่ไม่สามารถเข้าถึงอุปกรณ์ได้</p>
-                        </div>
-                        <div class="count" id="valReason3">0</div>
+                    <div class="kpi-card percent">
+                        <span class="icon">📈</span>
+                        <h3>ร้อยละการรายงานผล</h3>
+                        <div class="value" id="valPercent">0.00</div>
+                        <span class="unit">% ของเป้าหมาย</span>
                     </div>
                 </div>
 
-                <!-- Charts Row -->
+                <div class="reason-section">
+                    <h3>⚠️ รายละเอียดผู้ที่ไม่สามารถลงทะเบียนได้ แยกตามสาเหตุ (รวมทั้งสิ้น <span id="valFailedText">0</span> คน)</h3>
+                    <div class="reason-row" id="reasonCardsContainer"></div>
+                </div>
+
                 <div class="chart-row">
                     <div class="chart-container">
-                        <h3 id="barChartTitle">เปรียบเทียบเป้าหมายและผลงาน</h3>
+                        <h3 id="barChartTitle">เปรียบเทียบเป้าหมายและผลการรายงาน</h3>
                         <div class="chart-wrapper">
                             <canvas id="progressChart"></canvas>
                         </div>
                     </div>
                     <div class="chart-container">
-                        <h3>สัดส่วนสถานะผู้เรียนทั้งหมด</h3>
+                        <h3>สัดส่วนสถานะผู้เรียนที่รายงานแล้ว</h3>
                         <div class="chart-wrapper donut">
                             <canvas id="statusChart"></canvas>
                         </div>
                     </div>
                 </div>
 
-                <!-- Aggregate Data Table -->
                 <div class="table-container">
                     <h3 id="tableTitle">รายละเอียดความก้าวหน้ารายพื้นที่</h3>
                     <table>
                         <thead>
                             <tr>
-                                <th id="thAreaName">ชื่อพื้นที่</th>
-                                <th>เป้าหมาย (คน)</th>
-                                <th>ทำได้จริง (คน)</th>
-                                <th>ความคืบหน้า (%)</th>
+                                <th id="thAreaName" width="26%">ชื่อพื้นที่</th>
+                                <th width="16%">เป้าหมาย (คน)</th>
+                                <th width="16%">สำเร็จ (คน)</th>
+                                <th width="16%">ไม่สำเร็จ (คน)</th>
+                                <th width="14%">รวมรายงาน (คน)</th>
+                                <th width="22%">ความคืบหน้า (%)</th>
                             </tr>
                         </thead>
                         <tbody id="summaryTableBody">
-                            <tr><td colspan="4" style="padding:40px;">กำลังโหลดข้อมูล...</td></tr>
+                            <tr><td colspan="6" style="padding:40px;">กำลังโหลดข้อมูล...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -243,20 +219,28 @@
             </div>
         </div>
 
-        <!-- Footer -->
         <div class="footer">
-            พัฒนาระบบโดย งานเทคโนโลยีสารสนเทศ สกร.ลำพูน
+            พัฒนาระบบโดย งานเทคโนโลยีสารสนเทศ สำนักงานส่งเสริมการเรียนรู้ประจำจังหวัดลำพูน
         </div>
     </div>
-    <!-- จบส่วนที่จับภาพ -->
 
 <script>
-    // *** นำ Web App URL ของคุณมาใส่ตรงนี้ ***
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbzz5Z2cIVThEYu3DwG868kdjL3VSWSobn6QsQbjwlIALwD_O48XmEOx_LKxzpHzNQTOuw/exec'; 
+    const scriptURL = 'ใส่_Google_Apps_Script_URL_ของคุณที่นี่'; 
 
     let allReports = [], allTargets = [], amphoeTargets = {};
     let barChartInst = null;
     let pieChartInst = null;
+
+    const reasonMetaList = [
+        { key: "ไม่มีสัญชาติไทย", icon: "🌍", desc: "ไม่มีบัตร ปชช. / สัญชาติไทย" },
+        { key: "อยู่ในเรือนจำ/สถานพินิจ", icon: "🏛️", desc: "ผู้เรียนในเรือนจำ/สถานพินิจ" },
+        { key: "ไม่มีโทรศัพท์มือถือ", icon: "📵", desc: "ไม่มีอุปกรณ์โทรศัพท์มือถือ" },
+        { key: "ไม่มีสมาร์ทโฟน", icon: "📱", desc: "มีเฉพาะมือถือปุ่มกด ไม่ใช่สมาร์ทโฟน" },
+        { key: "ไม่มีสัญญาณอินเทอร์เน็ต", icon: "📡", desc: "พื้นที่ไม่มีสัญญาณอินเทอร์เน็ต" },
+        { key: "ไม่สามารถติดตั้งแอป ThaiID ได้", icon: "🆔", desc: "ติดปัญหาการลงทะเบียน/ติดตั้ง ThaID" },
+        { key: "พื้นที่โทรศัพท์ไม่เพียงพอติดตั้งแอป", icon: "💾", desc: "หน่วยความจำเครื่องเต็ม" },
+        { key: "ไม่สามารถติดตั้งแอป Edu Pass ได้ (เวอร์ชันโทรศัพท์ไม่รองรับ)", icon: "⚙️", desc: "ระบบปฏิบัติการเวอร์ชันเก่าเกินไป" }
+    ];
 
     const tambonData = {
         "เมืองลำพูน": ["ในเมือง", "เหมืองง่า", "อุโมงค์", "หนองช้างคืน", "ประตูป่า", "ริมปิง", "ต้นธง", "บ้านแป้น", "เหมืองจี้", "ป่าสัก", "เวียงยอง", "บ้านกลาง", "มะเขือแจ้", "ศรีบัวบาน", "หนองหนาม", "เรือนจำ/สถานพินิจ"],
@@ -273,17 +257,23 @@
         const dateOptions = { year: 'numeric', month: 'long', day: 'numeric' };
         document.getElementById('currentDateDisplay').innerText = new Date().toLocaleDateString('th-TH', dateOptions);
 
+        if (localStorage.getItem("userRole")) {
+            const adminBtn = document.getElementById('adminShortcutBtn');
+            adminBtn.href = "dashboard.html";
+            adminBtn.innerHTML = "🛠️ ไปหน้าจัดการข้อมูล (แอดมิน)";
+        }
+
         Swal.fire({
             title: 'กำลังโหลดข้อมูล...',
             allowOutsideClick: false,
             didOpen: () => { Swal.showLoading(); }
         });
         
-        fetch(scriptURL + "?action=getReport")
+        fetch(scriptURL + "?action=getReport&mode=public")
             .then(res => res.json())
             .then(data => {
-                allReports = data.reports;
-                allTargets = data.targets;
+                allReports = data.reports || [];
+                allTargets = data.targets || [];
                 amphoeTargets = data.amphoeTargets || {};
                 Swal.close();
                 renderData();
@@ -292,7 +282,6 @@
             });
     };
 
-    // ฟังก์ชันสำหรับดาวน์โหลดรูปภาพ
     function downloadAsImage() {
         Swal.fire({
             title: 'กำลังสร้างไฟล์รูปภาพ...',
@@ -301,15 +290,14 @@
             didOpen: () => { Swal.showLoading(); }
         });
 
-        // ให้เวลาเบราว์เซอร์เตรียมการสักนิดก่อนจับภาพ
         setTimeout(() => {
             const captureTarget = document.getElementById('captureArea');
             html2canvas(captureTarget, {
-                scale: 2, // เพิ่มความละเอียดภาพ (คูณ 2)
+                scale: 2,
                 useCORS: true, 
                 backgroundColor: '#f1f5f9'
             }).then(canvas => {
-                const imgData = canvas.toDataURL('image/jpeg', 0.85); // บีบอัดเป็น JPG 85%
+                const imgData = canvas.toDataURL('image/jpeg', 0.9);
                 const link = document.createElement('a');
                 
                 let areaName = document.getElementById('amphoeSelect').value;
@@ -326,18 +314,14 @@
         }, 800);
     }
 
-    // ฟังก์ชันเช็คสถานะเป้าหมาย
     function checkAllocationStatus() {
         let msgHTML = '<div style="text-align:left; font-size:15px; line-height:1.6; margin-top:15px;">';
-        
         Object.keys(tambonData).forEach(amp => {
             let maxTarget = parseInt(amphoeTargets[amp]) || 0;
             let allocated = 0;
-            
             allTargets.filter(t => t.amphoe === amp).forEach(t => {
                 allocated += (parseInt(t.target) || 0);
             });
-            
             if (maxTarget === 0) {
                 msgHTML += `⚪ <b>อ.${amp}:</b> <span style="color:#64748b;">ยังไม่ได้ตั้งเป้าหมายรวมอำเภอ</span><br>`;
             } else if (allocated === 0) {
@@ -350,7 +334,6 @@
                 msgHTML += `🟢 <b>อ.${amp}:</b> <span style="color:#10b981;">จัดสรรครบถ้วน ✅ (${maxTarget.toLocaleString()} คน)</span><br>`;
             }
         });
-        
         msgHTML += '</div>';
 
         Swal.fire({
@@ -366,35 +349,66 @@
         const filterAmphoe = document.getElementById('amphoeSelect').value;
         const isProvince = (filterAmphoe === "ทั้งหมด");
         
-        // อัปเดตข้อความหัวเรื่องให้ชัดเจนสำหรับการแคปรูป
-        document.getElementById('displayAreaName').innerText = isProvince ? "ภาพรวมสำนักงาน สกร.ประจำจังหวัดลำพูน " : `พื้นที่: สกร.อำเภอ${filterAmphoe}`;
+        document.getElementById('displayAreaName').innerText = isProvince 
+            ? "ภาพรวมสำนักงานส่งเสริมการเรียนรู้ประจำจังหวัดลำพูน" 
+            : `พื้นที่: ศูนย์ส่งเสริมการเรียนรู้ระดับอำเภอ${filterAmphoe}`;
 
         let rep = isProvince ? allReports : allReports.filter(r => r.amphoe === filterAmphoe);
         let tgt = isProvince ? allTargets : allTargets.filter(t => t.amphoe === filterAmphoe);
 
-        let totalTarget = 0, totalSuccess = 0;
-        let r_noThai = 0, r_noPhone = 0, r_prison = 0;
+        let totalTarget = 0, totalSuccess = 0, totalFailed = 0;
+        let reasonCounts = {};
+        reasonMetaList.forEach(item => reasonCounts[item.key] = 0);
         
         rep.forEach(r => {
-            if (r.reason === "ไม่มีสัญชาติไทย") r_noThai++;
-            else if (r.reason === "ไม่มีโทรศัพท์มือถือ") r_noPhone++;
-            else if (r.reason === "อยู่ในเรือนจำ/สถานพินิจ") r_prison++;
-            else totalSuccess++;
+            let reasonStr = (r.reason || "").trim();
+            if (reasonStr === "") {
+                totalSuccess++;
+            } else {
+                totalFailed++;
+                if (reasonCounts.hasOwnProperty(reasonStr)) {
+                    reasonCounts[reasonStr]++;
+                } else {
+                    reasonCounts[reasonStr] = (reasonCounts[reasonStr] || 0) + 1;
+                }
+            }
         });
-        let totalFailed = r_noThai + r_noPhone + r_prison;
+
+        let totalReported = totalSuccess + totalFailed;
+
+        let reasonCardsHTML = '';
+        reasonMetaList.forEach(item => {
+            let countVal = reasonCounts[item.key] || 0;
+            reasonCardsHTML += `
+                <div class="reason-card">
+                    <div class="info">
+                        <h4>${item.icon} ${item.key}</h4>
+                        <p>${item.desc}</p>
+                    </div>
+                    <div class="count">${countVal.toLocaleString()}</div>
+                </div>`;
+        });
+        document.getElementById('reasonCardsContainer').innerHTML = reasonCardsHTML;
+        document.getElementById('valFailedText').innerText = totalFailed.toLocaleString();
 
         let tableHTML = '';
-        let labels = [], dataTarget = [], dataActual = [];
+        let labels = [], dataTarget = [], dataSuccess = [], dataFailed = [];
 
         document.getElementById('thAreaName').innerText = isProvince ? "ศูนย์ส่งเสริมการเรียนรู้ระดับอำเภอ" : "ศูนย์ส่งเสริมการเรียนรู้ระดับตำบล";
-        document.getElementById('barChartTitle').innerText = isProvince ? "เปรียบเทียบเป้าหมายและผลงาน (ระดับอำเภอ)" : `ความคืบหน้าระดับตำบล (อำเภอ${filterAmphoe})`;
+        document.getElementById('barChartTitle').innerText = isProvince ? "เปรียบเทียบเป้าหมายและผลการรายงาน (ระดับอำเภอ)" : `เปรียบเทียบเป้าหมายและผลการรายงาน (อำเภอ${filterAmphoe})`;
 
         if (isProvince) {
             let ampStats = {};
-            Object.keys(tambonData).forEach(a => ampStats[a] = { target: parseInt(amphoeTargets[a]) || 0, actual: 0 });
-            rep.forEach(r => { if(ampStats[r.amphoe]) ampStats[r.amphoe].actual++; });
+            Object.keys(tambonData).forEach(a => ampStats[a] = { target: parseInt(amphoeTargets[a]) || 0, success: 0, failed: 0, actual: 0 });
+            rep.forEach(r => {
+                if (ampStats[r.amphoe]) {
+                    ampStats[r.amphoe].actual++;
+                    if ((r.reason || "").trim() === "") ampStats[r.amphoe].success++;
+                    else ampStats[r.amphoe].failed++;
+                }
+            });
 
-            for(let a in ampStats) {
+            for (let a in ampStats) {
                 let d = ampStats[a];
                 totalTarget += d.target;
                 let pct = d.target > 0 ? ((d.actual / d.target) * 100) : 0;
@@ -403,25 +417,34 @@
                 tableHTML += `<tr>
                     <td>อ.${a}</td>
                     <td style="color:var(--gray);">${d.target.toLocaleString()}</td>
-                    <td style="color:var(--success); font-weight:700;">${d.actual.toLocaleString()}</td>
+                    <td style="color:var(--success); font-weight:700;">${d.success.toLocaleString()}</td>
+                    <td style="color:var(--danger); font-weight:600;">${d.failed.toLocaleString()}</td>
+                    <td style="font-weight:700;">${d.actual.toLocaleString()}</td>
                     <td>
                         <div style="font-weight:700;">${pct.toFixed(2)}%</div>
                         <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pctStr}%;"></div></div>
                     </td>
                 </tr>`;
                 
-                labels.push('อ.'+a);
+                labels.push('อ.' + a);
                 dataTarget.push(d.target);
-                dataActual.push(d.actual);
+                dataSuccess.push(d.success);
+                dataFailed.push(d.failed);
             }
         } else {
             let tbStats = {};
-            tambonData[filterAmphoe].forEach(t => tbStats[t] = { target: 0, actual: 0 });
+            tambonData[filterAmphoe].forEach(t => tbStats[t] = { target: 0, success: 0, failed: 0, actual: 0 });
             tgt.forEach(t => { if(tbStats[t.tambon]) tbStats[t.tambon].target = parseInt(t.target) || 0; });
-            rep.forEach(r => { if(tbStats[r.tambon]) tbStats[r.tambon].actual++; });
+            rep.forEach(r => {
+                if (tbStats[r.tambon]) {
+                    tbStats[r.tambon].actual++;
+                    if ((r.reason || "").trim() === "") tbStats[r.tambon].success++;
+                    else tbStats[r.tambon].failed++;
+                }
+            });
             totalTarget = parseInt(amphoeTargets[filterAmphoe]) || 0; 
 
-            for(let t in tbStats) {
+            for (let t in tbStats) {
                 let d = tbStats[t];
                 let pct = d.target > 0 ? ((d.actual / d.target) * 100) : 0;
                 let pctStr = pct > 100 ? 100 : pct;
@@ -429,7 +452,9 @@
                 tableHTML += `<tr>
                     <td>${t}</td>
                     <td style="color:var(--gray);">${d.target.toLocaleString()}</td>
-                    <td style="color:var(--success); font-weight:700;">${d.actual.toLocaleString()}</td>
+                    <td style="color:var(--success); font-weight:700;">${d.success.toLocaleString()}</td>
+                    <td style="color:var(--danger); font-weight:600;">${d.failed.toLocaleString()}</td>
+                    <td style="font-weight:700;">${d.actual.toLocaleString()}</td>
                     <td>
                         <div style="font-weight:700;">${pct.toFixed(2)}%</div>
                         <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pctStr}%;"></div></div>
@@ -438,32 +463,32 @@
                 
                 labels.push(t);
                 dataTarget.push(d.target);
-                dataActual.push(d.actual);
+                dataSuccess.push(d.success);
+                dataFailed.push(d.failed);
             }
         }
 
-        animateValue("valTarget", 0, totalTarget, 1000);
-        animateValue("valSuccess", 0, totalSuccess, 1000);
-        animateValue("valFailed", 0, totalFailed, 1000);
-        animateValue("valReason1", 0, r_noThai, 1000);
-        animateValue("valReason2", 0, r_noPhone, 1000);
-        animateValue("valReason3", 0, r_prison, 1000);
+        animateValue("valTarget", 0, totalTarget, 800);
+        animateValue("valReported", 0, totalReported, 800);
+        animateValue("valSuccess", 0, totalSuccess, 800);
+        animateValue("valFailed", 0, totalFailed, 800);
         
-        let finalPercent = totalTarget > 0 ? ((totalSuccess / totalTarget) * 100).toFixed(2) : "0.00";
+        let finalPercent = totalTarget > 0 ? ((totalReported / totalTarget) * 100).toFixed(2) : "0.00";
         document.getElementById('valPercent').innerText = finalPercent;
         document.getElementById('summaryTableBody').innerHTML = tableHTML;
 
-        drawCharts(labels, dataTarget, dataActual, [totalSuccess, r_noThai, r_noPhone, r_prison]);
+        drawCharts(labels, dataTarget, dataSuccess, dataFailed, totalSuccess, reasonCounts);
     }
 
     function animateValue(id, start, end, duration) {
-        if (start === end) { document.getElementById(id).innerHTML = end.toLocaleString(); return; }
+        const obj = document.getElementById(id);
+        if (!obj) return;
+        if (start === end) { obj.innerHTML = end.toLocaleString(); return; }
         let range = end - start;
         let current = start;
         let increment = end > start ? Math.ceil(range / (duration/30)) : -1;
         let stepTime = Math.abs(Math.floor(duration / range));
         if (stepTime < 30) stepTime = 30; 
-        let obj = document.getElementById(id);
         let timer = setInterval(function() {
             current += increment;
             if ((increment > 0 && current >= end) || (increment < 0 && current <= end)) {
@@ -474,7 +499,7 @@
         }, stepTime);
     }
 
-    function drawCharts(labels, targetData, actualData, pieData) {
+    function drawCharts(labels, targetData, successData, failedData, totalSuccess, reasonCounts) {
         Chart.defaults.font.family = "'Sarabun', sans-serif";
         
         const ctxBar = document.getElementById('progressChart').getContext('2d');
@@ -484,13 +509,14 @@
             data: {
                 labels: labels,
                 datasets: [
-                    { label: 'เป้าหมายที่ตั้งไว้', data: targetData, backgroundColor: '#cbd5e1', borderRadius: 6 },
-                    { label: 'รายงานแล้ว(คน)', data: actualData, backgroundColor: '#3b82f6', borderRadius: 6 }
+                    { label: 'เป้าหมาย', data: targetData, backgroundColor: '#cbd5e1', borderRadius: 6 },
+                    { label: 'สำเร็จ', data: successData, backgroundColor: '#10b981', borderRadius: 6 },
+                    { label: 'ไม่สำเร็จ', data: failedData, backgroundColor: '#f97316', borderRadius: 6 }
                 ]
             },
             options: {
                 responsive: true, maintainAspectRatio: false,
-                plugins: { legend: { position: 'bottom', labels: { font: { size: 14 } } } },
+                plugins: { legend: { position: 'bottom', labels: { font: { size: 13 } } } },
                 scales: { 
                     y: { beginAtZero: true, grid: { borderDash: [5, 5] } },
                     x: { grid: { display: false } }
@@ -501,26 +527,49 @@
         const ctxPie = document.getElementById('statusChart').getContext('2d');
         if(pieChartInst) pieChartInst.destroy();
         
-        let hasData = pieData.some(val => val > 0);
-        let chartData = hasData ? pieData : [1];
-        let chartColors = hasData ? ['#10b981', '#f59e0b', '#f97316', '#ef4444'] : ['#e2e8f0'];
-        let chartLabels = hasData ? ['สำเร็จ', 'ไม่มีสัญชาติ', 'ไม่มีมือถือ', 'อยู่ในเรือนจำ'] : ['ยังไม่มีข้อมูล'];
+        let pieLabels = [];
+        let pieValues = [];
+        let pieColors = [];
+        const reasonPalette = ['#f59e0b', '#ef4444', '#f97316', '#8b5cf6', '#ec4899', '#06b6d4', '#eab308', '#64748b'];
+
+        if (totalSuccess > 0) {
+            pieLabels.push('ลงทะเบียนสำเร็จ');
+            pieValues.push(totalSuccess);
+            pieColors.push('#10b981');
+        }
+
+        let colorIdx = 0;
+        for (let rKey in reasonCounts) {
+            if (reasonCounts[rKey] > 0) {
+                pieLabels.push(rKey);
+                pieValues.push(reasonCounts[rKey]);
+                pieColors.push(reasonPalette[colorIdx % reasonPalette.length]);
+            }
+            colorIdx++;
+        }
+
+        let hasData = pieValues.length > 0;
+        if (!hasData) {
+            pieLabels = ['ยังไม่มีข้อมูล'];
+            pieValues = [1];
+            pieColors = ['#e2e8f0'];
+        }
 
         pieChartInst = new Chart(ctxPie, {
             type: 'doughnut',
             data: {
-                labels: chartLabels,
+                labels: pieLabels,
                 datasets: [{
-                    data: chartData,
-                    backgroundColor: chartColors,
+                    data: pieValues,
+                    backgroundColor: pieColors,
                     borderWidth: 0,
                     hoverOffset: 4
                 }]
             },
             options: { 
-                responsive: true, maintainAspectRatio: false, cutout: '65%',
+                responsive: true, maintainAspectRatio: false, cutout: '62%',
                 plugins: { 
-                    legend: { position: 'bottom', labels: { padding: 20, font: { size: 13 } } },
+                    legend: { position: 'bottom', labels: { padding: 14, font: { size: 12 }, boxWidth: 12 } },
                     tooltip: { enabled: hasData } 
                 }
             }

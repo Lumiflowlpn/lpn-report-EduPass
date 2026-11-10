@@ -29,7 +29,6 @@
         }
         h3 { color: #1e293b; margin-top: 0; line-height: 1.4;}
         
-        /* สไตล์ปุ่มเมนู 2 ทางเลือก */
         .menu-btn {
             display: flex;
             align-items: center;
@@ -70,7 +69,6 @@
             transform: translateY(-2px);
         }
 
-        /* ฟอร์มล็อกอิน (ซ่อนไว้ก่อน) */
         #loginFormContainer {
             display: none;
             margin-top: 25px;
@@ -118,17 +116,15 @@
 <div class="login-box">
     <h3>ระบบรายงานผลการลงทะเบียน EduPass<br><small style="color:#64748b; font-size: 15px;">สกร.ลำพูน</small></h3>
     
-    <!-- เมนูให้เลือก (Landing Page) -->
     <div id="menuSelection">
         <a href="report.html" class="menu-btn btn-report">
-            <span style="font-size: 20px;">📊</span> ดูรายงานผล (อินโฟกราฟิก)
+            <span style="font-size: 20px;">📊</span> ดูแดชบอร์ดภาพรวม (อินโฟกราฟิก)
         </a>
         <button class="menu-btn btn-admin" onclick="showLoginForm()">
             <span style="font-size: 20px;">🔒</span> เข้าสู่ระบบ (สำหรับแอดมิน)
         </button>
     </div>
 
-    <!-- ฟอร์มเข้าสู่ระบบ (ถูกซ่อนไว้ตอนแรก) -->
     <div id="loginFormContainer">
         <h4 style="margin-top:0; color:#34495e;">เข้าสู่ระบบจัดการข้อมูลรายบุคคล</h4>
         <form id="loginForm">
@@ -145,20 +141,23 @@
 </div>
 
 <script>
-    // ฟังก์ชันสำหรับเปิดหน้าฟอร์มล็อกอิน
     function showLoginForm() {
         document.getElementById('menuSelection').style.display = 'none';
         document.getElementById('loginFormContainer').style.display = 'block';
     }
 
-    // ฟังก์ชันสำหรับย้อนกลับไปหน้าเลือกเมนู
     function hideLoginForm() {
         document.getElementById('loginFormContainer').style.display = 'none';
         document.getElementById('menuSelection').style.display = 'block';
-        document.getElementById('loginForm').reset(); // เคลียร์ช่องพิมพ์
+        document.getElementById('loginForm').reset();
     }
 
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbzz5Z2cIVThEYu3DwG868kdjL3VSWSobn6QsQbjwlIALwD_O48XmEOx_LKxzpHzNQTOuw/exec'; // *** เปลี่ยนด้วย ***
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('form') === 'admin') {
+        showLoginForm();
+    }
+
+    const scriptURL = 'ใส่_Google_Apps_Script_URL_ของคุณที่นี่';
 
     document.getElementById('loginForm').addEventListener('submit', function(e) {
         e.preventDefault();
@@ -176,7 +175,6 @@
         .then(response => response.json())
         .then(data => {
             if(data.status === "success") {
-                // เก็บข้อมูลสิทธิ์ไว้ในเครื่อง
                 localStorage.setItem("userRole", data.role);
                 localStorage.setItem("userAmphoe", data.amphoe);
                 

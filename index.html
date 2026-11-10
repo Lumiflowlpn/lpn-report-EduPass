@@ -5,20 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ระบบติดตาม EduPass - สกร.ลำพูน</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Sarabun', sans-serif; background-color: #f0f4f8; padding: 20px; }
+        body { font-family: 'Sarabun', sans-serif; background-color: #f0f4f8; padding: 20px; margin: 0; }
         .container { max-width: 500px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
         h2 { text-align: center; color: #2c3e50; line-height: 1.4; margin-bottom: 25px; font-size: 20px; }
         .highlight { color: #007bff; font-size: 24px; font-weight: bold; }
         label { font-weight: bold; display: block; margin-top: 15px; color: #34495e; }
-        input[type="text"], select, input[type="file"] { width: 100%; padding: 12px; margin-top: 8px; border: 1px solid #ced4da; border-radius: 6px; box-sizing: border-box; }
+        input[type="text"], select, input[type="file"] { width: 100%; padding: 12px; margin-top: 8px; border: 1px solid #ced4da; border-radius: 6px; box-sizing: border-box; font-family: 'Sarabun'; }
         select:disabled { background-color: #e9ecef; cursor: not-allowed;}
-        button { width: 100%; padding: 14px; background-color: #007bff; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; margin-top: 25px; cursor: pointer; transition: 0.3s; }
+        button { width: 100%; padding: 14px; background-color: #007bff; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; margin-top: 25px; cursor: pointer; transition: 0.3s; font-family: 'Sarabun'; }
         button:hover { background-color: #0056b3; }
         .note { font-size: 13px; color: #e74c3c; margin-top: 5px; display: block; }
         
         .bottom-links { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
         .btn-link { display: block; width: 100%; padding: 12px; text-align: center; text-decoration: none; border-radius: 6px; font-size: 15px; font-weight: bold; box-sizing: border-box; border: 2px solid; transition: 0.3s; }
+        .btn-report { border-color: #0284c7; color: #0284c7; background-color: #f0f9ff; }
+        .btn-report:hover { background-color: #0284c7; color: white; }
         .btn-manual { border-color: #28a745; color: #28a745; }
         .btn-manual:hover { background-color: #28a745; color: white; }
         .btn-login { border-color: #6c757d; color: #6c757d; }
@@ -58,7 +61,7 @@
 
         <label>สถานะการลงทะเบียน:</label>
         <select id="regStatus" onchange="toggleReason()" required>
-            <option value="" disabled selected>-- กรุณาเลือกสถานะ --</option> 
+            <option value="" disabled selected>-- กรุณาเลือกสถานะ --</option>  
             <option value="สำเร็จ">✅ ลงทะเบียนสำเร็จ</option>
             <option value="ไม่สำเร็จ">❌ ไม่สามารถลงทะเบียนได้</option>
         </select>
@@ -88,11 +91,11 @@
     </form>
 
     <div class="bottom-links">
+        <a href="report.html" class="btn-link btn-report">📊 ดูรายงานผลภาพรวม (อินโฟกราฟิก)</a>
         <a href="https://drive.google.com/file/d/1wCV-CmJEkfxaSBf0F0YYstgzHxzyMSJ_/view?usp=sharing" target="_blank" class="btn-link btn-manual">📖 คู่มือการลงทะเบียนแอปพลิเคชัน EduPass</a>
         <a href="login.html" class="btn-link btn-login">🔒 เข้าสู่ระบบเรียกดูรายงานผล (สำหรับแอดมิน)</a>
     </div>
 
-    <!-- เอา style="display:none;" ออก เพื่อให้รูปแสดงตั้งแต่เริ่ม -->
     <div class="sample-box" id="sampleBox">
         <span class="sample-title">📌 ตัวอย่างไฟล์ภาพหลักฐานที่ต้องแนบ</span>
         <img src="https://i.postimg.cc/htdjx9BF/274910.png" alt="ตัวอย่างหลักฐาน">
@@ -100,8 +103,7 @@
 </div>
 
 <script>
-    // *** นำ Web App URL อันใหม่ของคุณมาใส่ตรงนี้ ***
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbzz5Z2cIVThEYu3DwG868kdjL3VSWSobn6QsQbjwlIALwD_O48XmEOx_LKxzpHzNQTOuw/exec'; 
+    const scriptURL = 'ใส่_Google_Apps_Script_URL_ของคุณที่นี่'; 
 
     const tambonData = {
         "เมืองลำพูน": ["ในเมือง", "เหมืองง่า", "อุโมงค์", "หนองช้างคืน", "ประตูป่า", "ริมปิง", "ต้นธง", "บ้านแป้น", "เหมืองจี้", "ป่าสัก", "เวียงยอง", "บ้านกลาง", "มะเขือแจ้", "ศรีบัวบาน", "หนองหนาม", "เรือนจำ/สถานพินิจ"],
@@ -133,21 +135,17 @@
 
     function toggleReason() {
         const status = document.getElementById('regStatus').value;
-        
         if (status === "ไม่สำเร็จ") {
-            // ถ้าไม่สำเร็จ ให้เปิดช่องหมายเหตุ และซ่อนรูปตัวอย่าง
             document.getElementById('reasonDiv').style.display = "block";
             document.getElementById('uploadDiv').style.display = "none";
             document.getElementById('sampleBox').style.display = "none";
-            document.getElementById('uploadFile').value = ""; // เคลียร์ไฟล์ทิ้ง
+            document.getElementById('uploadFile').value = "";
         } else if (status === "สำเร็จ") {
-            // ถ้าสำเร็จ ให้ปิดช่องหมายเหตุ และแสดงรูปตัวอย่าง
             document.getElementById('reasonDiv').style.display = "none";
             document.getElementById('uploadDiv').style.display = "block";
             document.getElementById('sampleBox').style.display = "block";
-            document.getElementById('reason').value = ""; // เคลียร์หมายเหตุทิ้ง
+            document.getElementById('reason').value = "";
         } else {
-            // กรณียังไม่ได้เลือกสถานะ ให้แสดงรูปตัวอย่างไว้
             document.getElementById('reasonDiv').style.display = "none";
             document.getElementById('uploadDiv').style.display = "none";
             document.getElementById('sampleBox').style.display = "block";
@@ -156,25 +154,19 @@
 
     document.getElementById('edupassForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        
         const tambon = document.getElementById('tambon').value;
         const regStatus = document.getElementById('regStatus').value;
         const reason = document.getElementById('reason').value;
         const fileInput = document.getElementById('uploadFile');
         const file = fileInput.files[0];
 
-        // ตรวจสอบเงื่อนไข: บังคับเลือกตำบล
         if (tambon === "") {
             Swal.fire('แจ้งเตือน', 'กรุณาเลือกศูนย์ส่งเสริมการเรียนรู้ระดับตำบล', 'warning');
             return;
         }
-        
-        // ตรวจสอบเงื่อนไข: บังคับเลือกสถานะการลงทะเบียน
         if (regStatus === "") {
              Swal.fire('แจ้งเตือน', 'กรุณาเลือกสถานะการลงทะเบียน', 'warning'); return;
         }
-
-        // ตรวจสอบเงื่อนไข
         if (regStatus === "สำเร็จ" && !file) {
             Swal.fire('แจ้งเตือน', 'กรุณาแนบไฟล์รูปภาพภาพถ่ายหน้าจอ', 'warning'); return;
         }
@@ -189,7 +181,6 @@
             didOpen: () => { Swal.showLoading(); }
         });
 
-        // ฟังก์ชันสำหรับส่งข้อมูล
         const sendData = (base64Data, mimeType) => {
             const payload = {
                 action: "saveReport",
@@ -236,7 +227,7 @@
             reader.onload = function(e) { sendData(e.target.result.split(',')[1], file.type); };
             reader.readAsDataURL(file); 
         } else {
-            sendData("", ""); // กรณีไม่สำเร็จ จะไม่มีไฟล์
+            sendData("", "");
         }
     });
 </script>
